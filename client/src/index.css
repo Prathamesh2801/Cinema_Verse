@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────
+   BRAND DESIGN TOKENS
+   ───────────────────────────────────────────── */
+:root {
+  /* Core palette */
+  --color-bg:            #09090b;   /* deep black — main background          */
+  --color-bg-elevated:   #111113;   /* slightly lifted surface (cards, rows)  */
+  --color-bg-overlay:    #18181b;   /* modals, dropdowns, search panel        */
+
+  /* Gold — primary accent */
+  --color-gold:          #EECD81;   /* brand gold                             */
+  --color-gold-dim:      #c9a84c;   /* muted gold for secondary uses          */
+  --color-gold-glow:     rgba(238, 205, 129, 0.12); /* gold ambient glow     */
+  --color-gold-border:   rgba(238, 205, 129, 0.25); /* gold border tint      */
+
+  /* Royal blue — accent complement */
+  --color-royal:         #2B4C8C;   /* deep royal blue                        */
+  --color-royal-bright:  #3D6CC0;   /* brighter royal for icons/highlights    */
+  --color-royal-dim:     rgba(43, 76, 140, 0.30); /* muted royal bg tint    */
+  --color-royal-border:  rgba(61, 108, 192, 0.35); /* royal border tint     */
+
+  /* Text */
+  --color-text-primary:   #FFFFFF;
+  --color-text-secondary: #C8C2B0;  /* warm off-white — body copy             */
+  --color-text-muted:     #7A7060;  /* subdued labels, metadata               */
+  --color-text-gold:      #EECD81;
+  --color-text-royal:     #7BAAF7;  /* lighter blue readable on dark bg       */
+
+  /* Borders & dividers */
+  --color-border:         rgba(238, 205, 129, 0.12); /* default border — faint gold */
+  --color-border-strong:  rgba(238, 205, 129, 0.28); /* hover / focused border      */
+  --color-border-subtle:  rgba(255, 255, 255, 0.06); /* very subtle separator       */
+
+  /* Semantic */
+  --color-rating:         #EECD81;  /* star ratings use gold                  */
+  --color-rating-icon:    #EECD81;
+
+  /* Spacing helpers (used in components) */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-full: 9999px;
+}
+
+/* ─────────────────────────────────────────────
+   BASE RESET / GLOBAL
+   ───────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─────────────────────────────────────────────
+   SCROLLBAR — hide utility
+   ───────────────────────────────────────────── */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─────────────────────────────────────────────
+   GOLD GLOW UTILITY
+   ───────────────────────────────────────────── */
+.glow-gold {
+  box-shadow: 0 0 0 1px var(--color-gold-border),
+              0 8px 32px var(--color-gold-glow);
+}
+
+/* ─────────────────────────────────────────────
+   SEARCH DROPDOWN — always on top of everything
+   ───────────────────────────────────────────── */
+.search-results-portal {
+  position: fixed;
+  z-index: 9999;
+}

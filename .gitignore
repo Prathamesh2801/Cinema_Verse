@@ -1,0 +1,24 @@
+# dependencies
+node_modules/
+
+# env files
+.env
+.env.*
+
+# logs
+logs
+*.log
+
+# OS files
+.DS_Store
+
+# build
+dist/
+build/
+
+# Vite
+client/node_modules
+client/dist
+
+# Server
+server/node_modules
