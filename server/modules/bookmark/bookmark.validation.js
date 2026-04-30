@@ -1,7 +1,7 @@
 export function validateToggleBookmark(data) {
-  const { movieId } = data;
+  const { mediaId } = data;
 
-  if (!movieId) {
-    throw new Error("movieId is required");
+  if (!mediaId) {
+    throw new Error("mediaId is required");
   }
 }

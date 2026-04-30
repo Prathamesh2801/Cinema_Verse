@@ -1,14 +1,25 @@
 import mongoose from "mongoose";
 
-const bookmarkSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+const bookmarkSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    mediaId: {
+      type: Number,
+      required: true,
+    },
+    mediaType: {
+      type: String,
+      enum: ["movie", "tv"],
+      required: true,
+    },
   },
-  movieId: Number,
-});
+  { timestamps: true },
+);
 
-//  Prevent duplicates
-bookmarkSchema.index({ userId: 1, movieId: 1 }, { unique: true });
+bookmarkSchema.index({ userId: 1, mediaId: 1, mediaType: 1 }, { unique: true });
 
 export default mongoose.model("Bookmark", bookmarkSchema);

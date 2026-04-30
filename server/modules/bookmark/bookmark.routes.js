@@ -9,10 +9,10 @@ import authMiddleware from "../../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/", authMiddleware, toggleBookmark);
+router.post("/toggle", authMiddleware, toggleBookmark);
 
 router.get("/", authMiddleware, getUserBookmarks);
 
-router.get("/:movieId", authMiddleware, isBookmarked);
+router.get("/:mediaId", authMiddleware, isBookmarked);
 
 export default router;

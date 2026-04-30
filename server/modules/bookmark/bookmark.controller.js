@@ -6,23 +6,18 @@ import {
 
 import { validateToggleBookmark } from "./bookmark.validation.js";
 
-
 // 🔹 Toggle Bookmark
 export async function toggleBookmark(req, res) {
   try {
     validateToggleBookmark(req.body);
-
-    const result = await toggleBookmarkService(
-      req.body,
-      req.user.id
-    );
+    const userId = req.user.id;
+    const result = await toggleBookmarkService(userId, req.body);
 
     res.json(result);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 }
-
 
 // 🔹 Get all bookmarks of logged-in user
 export async function getUserBookmarks(req, res) {
@@ -35,16 +30,12 @@ export async function getUserBookmarks(req, res) {
   }
 }
 
-
 // 🔹 Check single movie bookmark
 export async function isBookmarked(req, res) {
   try {
-    const { movieId } = req.params;
+    const { mediaId } = req.params;
 
-    const result = await isBookmarkedService(
-      req.user.id,
-      movieId
-    );
+    const result = await isBookmarkedService(req.user.id, mediaId);
 
     res.json({ isBookmarked: result });
   } catch (err) {

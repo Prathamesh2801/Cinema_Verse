@@ -1,13 +1,71 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Film, Tv2, Home, Search, X, UserPlus, LogIn } from "lucide-react";
-import Logo from '../assets/img/logo.png'
+import {
+  Film,
+  Tv2,
+  Home,
+  Search,
+  X,
+  UserPlus,
+  LogIn,
+  Bookmark,
+} from "lucide-react";
+import Logo from "../assets/img/logo.png";
 import SearchBar from "./SearchBar";
+import UserDrawer from "./UserDrawer";
+import { useAuth } from "../features/auth/context/AuthContext";
+
+/* ── Reusable avatar button — same look on desktop + mobile ── */
+function AvatarButton({ user, onClick }) {
+  const initials = (user?.username || user?.name || "U")
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  return (
+    <motion.button
+      whileHover={{ scale: 1.06 }}
+      whileTap={{ scale: 0.94 }}
+      onClick={onClick}
+      title="Open account menu"
+      style={{
+        width: 36,
+        height: 36,
+        borderRadius: "var(--radius-full)",
+        background:
+          "linear-gradient(135deg, var(--color-gold-dim), var(--color-royal-bright))",
+        border: "2px solid var(--color-gold-border)",
+        boxShadow: "0 0 12px var(--color-gold-glow)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        flexShrink: 0,
+      }}
+    >
+      <span
+        style={{
+          fontSize: 12,
+          fontWeight: 800,
+          color: "var(--color-bg)",
+          lineHeight: 1,
+          userSelect: "none",
+        }}
+      >
+        {initials}
+      </span>
+    </motion.button>
+  );
+}
 
 export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
+  const { user, loading } = useAuth();
 
   const navLinks = [
     { to: "/", label: "Home", icon: Home },
@@ -15,34 +73,26 @@ export default function Header() {
     { to: "/tv", label: "Shows", icon: Tv2 },
   ];
 
-  // Auth button variants
-  const authButtonBase = {
-    padding: "8px 16px",
+  /* shared auth button base */
+  const authBase = {
     borderRadius: "var(--radius-md)",
     fontSize: 13,
     fontWeight: 600,
     cursor: "pointer",
-    transition: "all 0.2s ease",
     display: "flex",
     alignItems: "center",
     gap: 6,
+    fontFamily: "inherit",
+    transition: "all 0.2s",
+    whiteSpace: "nowrap",
   };
-
-  const loginBtnStyle = {
-    background: "transparent",
-    border: "1px solid var(--color-border)",
-    color: "var(--color-text-secondary)",
-  };
-
-  const registerBtnStyle = {
-    background: "var(--color-gold)",
-    border: "1px solid var(--color-gold)",
-    color: "var(--color-bg)",
-  };
+  if (loading) return null;
 
   return (
     <>
-      {/* ── Desktop Header ── */}
+      {/* ════════════════════════════════════════
+          DESKTOP HEADER
+      ════════════════════════════════════════ */}
       <header
         className="hidden md:flex flex-col sticky top-0 w-full backdrop-blur-md"
         style={{
@@ -51,13 +101,13 @@ export default function Header() {
           zIndex: 100,
         }}
       >
-        <div className="max-w-7xl mx-auto w-full px-6 h-20 flex items-center justify-between gap-6">
+        <div className="max-w-7xl mx-auto w-full px-6 h-20 flex items-center gap-5">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 shrink-0">
-            <img 
-              src={Logo} 
-              alt="StreamVerse" 
-              style={{ height: 70, width: 'auto', objectFit: 'contain' }}
+          <Link to="/" className="flex items-center gap-2.5 shrink-0 mr-2">
+            <img
+              src={Logo}
+              alt="StreamVerse"
+              style={{ height: 60, width: "auto", objectFit: "contain" }}
             />
             <span
               className="font-bold tracking-wide text-lg"
@@ -68,7 +118,7 @@ export default function Header() {
           </Link>
 
           {/* Nav links */}
-          <nav className="flex items-center gap-1">
+          <nav className="flex items-center justify-center gap-1 flex-1">
             {navLinks.map(({ to, label }) => {
               const active = location.pathname === to;
               return (
@@ -95,61 +145,93 @@ export default function Header() {
             })}
           </nav>
 
-          {/* Search toggle */}
-          <button
-            onClick={() => setSearchOpen((v) => !v)}
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200"
-            style={{
-              background: searchOpen
-                ? "var(--color-gold-glow)"
-                : "var(--color-bg-elevated)",
-              border: `1px solid ${searchOpen ? "var(--color-gold-border)" : "var(--color-border)"}`,
-            }}
-          >
-            {searchOpen ? (
-              <X className="w-4 h-4" style={{ color: "var(--color-gold)" }} />
-            ) : (
-              <Search
-                className="w-4 h-4"
-                style={{ color: "var(--color-text-muted)" }}
-              />
-            )}
-          </button>
+          {/* Right cluster */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Search toggle */}
+            <button
+              onClick={() => setSearchOpen((v) => !v)}
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200"
+              style={{
+                background: searchOpen
+                  ? "var(--color-gold-glow)"
+                  : "var(--color-bg-elevated)",
+                border: `1px solid ${searchOpen ? "var(--color-gold-border)" : "var(--color-border)"}`,
+              }}
+            >
+              {searchOpen ? (
+                <X className="w-4 h-4" style={{ color: "var(--color-gold)" }} />
+              ) : (
+                <Search
+                  className="w-4 h-4"
+                  style={{ color: "var(--color-text-muted)" }}
+                />
+              )}
+            </button>
 
-          {/* Auth Buttons */}
-          <div className="flex items-center gap-2">
-            <Link to="/login">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                style={{ ...authButtonBase, ...loginBtnStyle }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "var(--color-gold-border)";
-                  e.currentTarget.style.color = "var(--color-gold)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "var(--color-border)";
-                  e.currentTarget.style.color = "var(--color-text-secondary)";
-                }}
-              >
-                <LogIn className="w-4 h-4" />
-                Login
-              </motion.button>
-            </Link>
-            <Link to="/register">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                style={{ ...authButtonBase, ...registerBtnStyle }}
-              >
-                <UserPlus className="w-4 h-4" />
-                Register
-              </motion.button>
-            </Link>
+            {/* ── Logged OUT — Login + Register ── */}
+            {!user && (
+              <div className="flex items-center gap-2">
+                <Link to="/login">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    style={{
+                      ...authBase,
+                      padding: "8px 16px",
+                      background: "transparent",
+                      border: "1px solid var(--color-border)",
+                      color: "var(--color-text-secondary)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor =
+                        "var(--color-gold-border)";
+                      e.currentTarget.style.color = "var(--color-gold)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "var(--color-border)";
+                      e.currentTarget.style.color =
+                        "var(--color-text-secondary)";
+                    }}
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Login
+                  </motion.button>
+                </Link>
+
+                <Link to="/register">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    style={{
+                      ...authBase,
+                      padding: "8px 16px",
+                      background: "var(--color-gold)",
+                      border: "1px solid var(--color-gold)",
+                      color: "var(--color-bg)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background =
+                        "var(--color-gold-dim)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "var(--color-gold)";
+                    }}
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    Register
+                  </motion.button>
+                </Link>
+              </div>
+            )}
+
+            {/* ── Logged IN — Avatar opens drawer ── */}
+            {user && (
+              <AvatarButton user={user} onClick={() => setDrawerOpen(true)} />
+            )}
           </div>
         </div>
 
-        {/* Expandable search strip — overflow-visible is critical so the dropdown isn't clipped */}
+        {/* Expandable search strip */}
         <AnimatePresence>
           {searchOpen && (
             <motion.div
@@ -158,12 +240,11 @@ export default function Header() {
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
               style={{
-                overflow:
-                  "visible" /* must NOT be hidden — dropdown lives here */,
+                overflow: "visible",
                 background: "rgba(9,9,11,0.98)",
                 borderBottom: "1px solid var(--color-border)",
                 position: "relative",
-                zIndex: 200 /* higher than header z:100 */,
+                zIndex: 200,
               }}
             >
               <div className="max-w-2xl mx-auto px-6 py-3">
@@ -174,7 +255,9 @@ export default function Header() {
         </AnimatePresence>
       </header>
 
-      {/* ── Mobile Top Bar ── */}
+      {/* ════════════════════════════════════════
+          MOBILE TOP BAR
+      ════════════════════════════════════════ */}
       <header
         className="md:hidden sticky top-0 w-full backdrop-blur-md"
         style={{
@@ -183,29 +266,58 @@ export default function Header() {
           zIndex: 100,
         }}
       >
-        <div className="h-16 flex items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-2">
-            <img 
-              src={Logo} 
-              alt="StreamVerse" 
-              style={{ height: 40, width: 'auto', objectFit: 'contain' }}
+        {/* ── Single icon row: logo  |  flex-1 spacer  |  search · login · register / avatar ── */}
+        <div
+          style={{
+            height: 54,
+            display: "flex",
+            alignItems: "center",
+            padding: "0 14px",
+            gap: 8,
+          }}
+        >
+          {/* Logo */}
+          <Link
+            to="/"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flexShrink: 0,
+            }}
+          >
+            <img
+              src={Logo}
+              alt="StreamVerse"
+              style={{ height: 36, width: "auto", objectFit: "contain" }}
             />
             <span
-              className="font-extrabold text-base tracking-tight"
+              className="font-extrabold text-sm tracking-tight"
               style={{ color: "var(--color-text-primary)" }}
             >
               Stream<span style={{ color: "var(--color-gold)" }}>Verse</span>
             </span>
           </Link>
 
+          {/* Spacer */}
+          <div style={{ flex: 1 }} />
+
+          {/* Search icon */}
           <button
             onClick={() => setSearchOpen((v) => !v)}
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
             style={{
+              width: 34,
+              height: 34,
+              borderRadius: "var(--radius-full)",
               background: searchOpen
                 ? "var(--color-gold-glow)"
                 : "var(--color-bg-elevated)",
               border: `1px solid ${searchOpen ? "var(--color-gold-border)" : "var(--color-border)"}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              flexShrink: 0,
             }}
           >
             {searchOpen ? (
@@ -217,41 +329,67 @@ export default function Header() {
               />
             )}
           </button>
+
+          {/* ── Logged OUT: Login + Register as compact icon-buttons ── */}
+          {!user && (
+            <>
+              <Link to="/login">
+                <motion.button
+                  whileTap={{ scale: 0.93 }}
+                  title="Login"
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: "var(--radius-full)",
+                    background: "var(--color-bg-elevated)",
+                    border: "1px solid var(--color-border)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                  }}
+                >
+                  <LogIn
+                    className="w-4 h-4"
+                    style={{ color: "var(--color-text-muted)" }}
+                  />
+                </motion.button>
+              </Link>
+
+              <Link to="/register">
+                <motion.button
+                  whileTap={{ scale: 0.93 }}
+                  title="Register"
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: "var(--radius-full)",
+                    background: "var(--color-gold)",
+                    border: "1px solid var(--color-gold-border)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                  }}
+                >
+                  <UserPlus
+                    className="w-4 h-4"
+                    style={{ color: "var(--color-bg)" }}
+                  />
+                </motion.button>
+              </Link>
+            </>
+          )}
+
+          {/* ── Logged IN: Avatar opens drawer ── */}
+          {user && (
+            <AvatarButton user={user} onClick={() => setDrawerOpen(true)} />
+          )}
         </div>
 
-        {/* Mobile Auth Buttons - subtle & minimal */}
-        <div className="flex items-center gap-2 px-4 pb-3">
-          <Link to="/login" className="flex-1">
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              className="w-full py-1.5 rounded-md text-xs font-medium flex items-center justify-center gap-1.5"
-              style={{
-                background: "transparent",
-                border: "1px solid var(--color-border)",
-                color: "var(--color-text-muted)",
-              }}
-            >
-              <LogIn className="w-3 h-3" />
-              Login
-            </motion.button>
-          </Link>
-          <Link to="/register" className="flex-1">
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              className="w-full py-1.5 rounded-md text-xs font-medium flex items-center justify-center gap-1.5"
-              style={{
-                background: "var(--color-gold-dim)",
-                border: "1px solid var(--color-gold-border)",
-                color: "var(--color-gold)",
-              }}
-            >
-              <UserPlus className="w-3 h-3" />
-              Register
-            </motion.button>
-          </Link>
-        </div>
-
-        {/* Mobile search strip — overflow visible so results drop below */}
+        {/* Mobile search strip */}
         <AnimatePresence>
           {searchOpen && (
             <motion.div
@@ -267,7 +405,7 @@ export default function Header() {
                 zIndex: 200,
               }}
             >
-              <div className="px-4 py-3">
+              <div style={{ padding: "10px 14px" }}>
                 <SearchBar autoFocus onClose={() => setSearchOpen(false)} />
               </div>
             </motion.div>
@@ -275,13 +413,15 @@ export default function Header() {
         </AnimatePresence>
       </header>
 
-      {/* ── Mobile Bottom Navigation ── */}
+      {/* ════════════════════════════════════════
+          MOBILE BOTTOM NAVIGATION
+      ════════════════════════════════════════ */}
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 backdrop-blur-md"
         style={{
           background: "rgba(9,9,11,0.97)",
           borderTop: "1px solid var(--color-border)",
-          zIndex: 50 /* below search (200) but above page content */,
+          zIndex: 50,
         }}
       >
         <div className="flex items-center justify-around h-16">
@@ -333,6 +473,11 @@ export default function Header() {
           })}
         </div>
       </nav>
+
+      {/* ════════════════════════════════════════
+          USER DRAWER  (rendered at root level)
+      ════════════════════════════════════════ */}
+      <UserDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </>
   );
 }

@@ -1,27 +1,27 @@
 import Bookmark from "./bookmark.model.js";
 
-// 🔹 Toggle bookmark
-export async function toggleBookmarkService(data, userId) {
-  const { movieId } = data;
+export async function toggleBookmarkService(userId, data) {
+  const { mediaId, mediaType } = data;
 
   const existing = await Bookmark.findOne({
     userId,
-    movieId,
+    mediaId,
+    mediaType,
   });
 
   if (existing) {
     await existing.deleteOne();
-    return { bookmarked: false };
+    return { removed: true };
   }
 
-  await Bookmark.create({
+  const bookmark = await Bookmark.create({
     userId,
-    movieId,
+    mediaId,
+    mediaType,
   });
 
-  return { bookmarked: true };
+  return { added: true, bookmark };
 }
-
 
 // 🔹 Get all bookmarks for user
 export async function getUserBookmarksService(userId) {
@@ -30,12 +30,11 @@ export async function getUserBookmarksService(userId) {
   return bookmarks;
 }
 
-
 // 🔹 Check if a movie is bookmarked (useful for UI)
-export async function isBookmarkedService(userId, movieId) {
+export async function isBookmarkedService(userId, mediaId) {
   const bookmark = await Bookmark.findOne({
     userId,
-    movieId,
+    mediaId,
   });
 
   return !!bookmark;

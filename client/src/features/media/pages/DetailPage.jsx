@@ -13,6 +13,8 @@ import DetailOverview from "../components/DetailOverview";
 import DetailProduction from "../components/DetailProduction";
 import DetailSeasons from "../components/DetailSeasons";
 import DetailLastEpisode from "../components/DetailLastEpisode";
+import { useBookmarks } from "../../bookmark/context/BookmarkContext";
+import ReviewSection from "../../review/components/ReviewSection";
 
 /* ── Loading skeleton ── */
 function LoadingSkeleton() {
@@ -75,7 +77,11 @@ export default function DetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const { bookmarks, toggle } = useBookmarks();
   const isTV = type === "tv";
+  const isBookmarked = bookmarks.some(
+    (b) => b.mediaId === Number(id) && b.mediaType === type,
+  );
 
   useEffect(() => {
     if (!id || !type) return;
@@ -205,6 +211,35 @@ export default function DetailPage() {
             Back
           </button>
 
+          <button
+            onClick={() =>
+              toggle({
+                id: Number(id),
+                media_type: type,
+              })
+            }
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "7px 13px",
+              borderRadius: "var(--radius-full)",
+              background: "rgba(9,9,11,0.72)",
+              backdropFilter: "blur(10px)",
+              border: "1px solid var(--color-border)",
+              color: isBookmarked
+                ? "var(--color-gold)"
+                : "var(--color-text-secondary)",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              fontFamily: "inherit",
+              pointerEvents: "all",
+            }}
+          >
+            {isBookmarked ? "❤️ Bookmarked" : "🤍 Bookmark"}
+          </button>
+
           {homepage && (
             <a
               href={homepage}
@@ -282,6 +317,8 @@ export default function DetailPage() {
 
           {/* Production companies / networks / creators */}
           <DetailProduction data={data} type={type} />
+          <Divider />
+          <ReviewSection mediaId={id} />
         </div>
       </motion.div>
     </AnimatePresence>
