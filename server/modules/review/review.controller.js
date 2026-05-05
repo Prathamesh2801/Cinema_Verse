@@ -1,3 +1,4 @@
+import { handleError } from "./review.helper.js";
 import {
   fetchReviewService,
   createReviewService,
@@ -8,95 +9,105 @@ import {
   createReplyService,
 } from "./review.service.js";
 
-import { validateCreateReview, validateReply } from "./review.validation.js";
+import {
+  validateCreateReview,
+  validateReply,
+  validateUpdateReview,
+} from "./review.validation.js";
 
-// 🔹 GET REVIEWS
+
+
+// GET
 export async function getReviews(req, res) {
   try {
-    const { movieId } = req.params;
+    const { id: mediaId } = req.params;
+    const userId = req.user?.id || null;
 
-    const reviews = await fetchReviewService(movieId);
+    const reviews = await fetchReviewService(Number(mediaId), userId);
 
-    res.json(reviews);
+    res.json({ success: true, data: reviews });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    handleError(res, err);
   }
 }
 
-// 🔹 CREATE REVIEW
+// CREATE
 export async function createReview(req, res) {
   try {
-    validateCreateReview(req.body);
+    const payload = {
+      ...req.body,
+      mediaId: Number(req.body.mediaId),
+    };
 
-    const result = await createReviewService(req.body, req.user.id);
+    validateCreateReview(payload);
 
-    res.json(result);
+    const result = await createReviewService(payload, req.user.id);
+
+    res.json({ success: true, data: result });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    handleError(res, err);
   }
 }
 
-// 🔹 UPDATE REVIEW
+// UPDATE
 export async function updateReview(req, res) {
   try {
-    const { id } = req.params;
+    validateUpdateReview(req.body);
 
-    const result = await updateReviewService(id, req.body, req.user.id);
+    const result = await updateReviewService(
+      req.params.id,
+      req.body,
+      req.user.id
+    );
 
-    res.json(result);
+    res.json({ success: true, data: result });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    handleError(res, err);
   }
 }
 
-// 🔹 DELETE REVIEW
+// DELETE
 export async function deleteReview(req, res) {
   try {
-    const { id } = req.params;
+    const result = await deleteReviewService(req.params.id, req.user.id);
 
-    await deleteReviewService(id, req.user.id);
-
-    res.json({ message: "Deleted" });
+    res.json({ success: true, data: result });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    handleError(res, err);
   }
 }
 
-// 🔹 LIKE
+// LIKE
 export async function toggleLike(req, res) {
   try {
-    const { id } = req.params;
+    const result = await toggleLikeService(req.params.id, req.user.id);
 
-    const result = await toggleLikeService(id, req.user.id);
-
-    res.json(result);
+    res.json({ success: true, data: result });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    handleError(res, err);
   }
 }
 
-// 🔹 DISLIKE
+// DISLIKE
 export async function toggleDislike(req, res) {
   try {
-    const { id } = req.params;
+    const result = await toggleDislikeService(req.params.id, req.user.id);
 
-    const result = await toggleDislikeService(id, req.user.id);
-
-    res.json(result);
+    res.json({ success: true, data: result });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    handleError(res, err);
   }
 }
 
-// 🔹 REPLY
+// REPLY
 export async function createReply(req, res) {
   try {
     validateReply(req.body);
 
     const result = await createReplyService(req.body, req.user.id);
 
-    res.json(result);
+    res.json({ success: true, data: result });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    handleError(res, err);
   }
 }

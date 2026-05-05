@@ -6,18 +6,18 @@ const reviewSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-
-    movieId: Number,
+    mediaId: {
+      type: Number,
+      required: true,
+    },
 
     rating: Number,
 
     review: String,
 
-    // 👍 Likes / Dislikes
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     dislikes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 
-    // 💬 Replies (Phase 3)
     parentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Review",

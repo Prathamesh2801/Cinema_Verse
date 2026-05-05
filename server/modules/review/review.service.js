@@ -1,57 +1,65 @@
 import Review from "./review.model.js";
+import { normalizeReview, createError } from "./review.helper.js";
 
-export async function fetchReviewService(movieId) {
-  const reviews = await Review.find({ movieId }).populate("userId", "username");
+export async function fetchReviewService(mediaId, userId) {
+  const reviews = await Review.find({ mediaId })
+    .populate("userId", "username")
+    .lean();
 
-  return reviews;
+  return reviews.map((r) => normalizeReview(r, userId));
 }
 
 export async function createReviewService(data, userId) {
-  const { movieId, rating, review } = data;
+  const { mediaId, rating, review } = data;
 
-  return await Review.create({
+  const created = await Review.create({
     userId,
-    movieId,
+    mediaId,
     rating,
     review,
   });
+
+  await created.populate("userId", "username");
+
+  return normalizeReview(created, userId);
 }
 
 export async function updateReviewService(id, data, userId) {
   const existing = await Review.findById(id);
 
-  if (!existing) throw new Error("Review not found");
+  if (!existing) throw createError("Review not found", 404);
 
-  if (existing.userId.toString() !== userId) {
-    throw new Error("Unauthorized");
-  }
+  if (existing.userId.toString() !== userId)
+    throw createError("Unauthorized", 403);
 
-  existing.rating = data.rating;
-  existing.review = data.review;
+  if (data.rating !== undefined) existing.rating = data.rating;
+  if (data.review !== undefined) existing.review = data.review;
 
   await existing.save();
+  await existing.populate("userId", "username");
 
-  return existing;
+  return normalizeReview(existing, userId);
 }
 
 export async function deleteReviewService(id, userId) {
   const existing = await Review.findById(id);
 
-  if (!existing) throw new Error("Not found");
+  if (!existing) throw createError("Review not found", 404);
+  if (existing.userId.toString() !== userId)
+    throw createError("Unauthorized", 403);
 
-  if (existing.userId.toString() !== userId) {
-    throw new Error("Unauthorized");
-  }
-
+  await Review.deleteMany({ parentId: id }); // 🔥 cascade
   await existing.deleteOne();
+
+  return { message: "Deleted successfully" };
 }
 
 export async function toggleLikeService(id, userId) {
-  const review = await Review.findById(id);
+  const review = await Review.findById(id).populate("userId", "username");
 
-  if (review.userId.toString() === userId) {
-    throw new Error("Cannot like own review");
-  }
+  if (!review) throw createError("Review not found", 404);
+  if (review.userId._id.toString() === userId)
+    throw createError("Cannot like your own review", 400);
 
   const liked = review.likes.includes(userId);
 
@@ -64,17 +72,15 @@ export async function toggleLikeService(id, userId) {
 
   await review.save();
 
-  return review;
+  return normalizeReview(review, userId);
 }
 
 export async function toggleDislikeService(id, userId) {
-  const review = await Review.findById(id);
+  const review = await Review.findById(id).populate("userId", "username");
 
-  if (!review) throw new Error("Review not found");
-
-  if (review.userId.toString() === userId) {
-    throw new Error("Cannot dislike own review");
-  }
+  if (!review) throw createError("Review not found", 404);
+  if (review.userId._id.toString() === userId)
+    throw createError("Cannot like your own review", 400);
 
   const disliked = review.dislikes.includes(userId);
 
@@ -87,24 +93,24 @@ export async function toggleDislikeService(id, userId) {
 
   await review.save();
 
-  return review;
+  return normalizeReview(review, userId);
 }
 
 export async function createReplyService(data, userId) {
-  const { movieId, review, parentId } = data;
+  const { review, parentId } = data;
 
   const parent = await Review.findById(parentId);
 
-  if (!parent) throw new Error("Invalid parentId");
+  if (!parent) throw createError("Invalid parentId", 400);
 
-  if (parent.movieId !== movieId) {
-    throw new Error("Parent review mismatch");
-  }
-
-  return await Review.create({
+  const reply = await Review.create({
     userId,
-    movieId,
+    mediaId: Number(parent.mediaId),
     review,
     parentId,
   });
+
+  await reply.populate("userId", "username");
+
+  return normalizeReview(reply, userId);
 }
