@@ -126,7 +126,7 @@ export default function DetailHero({ data, type }) {
           style={{ flex: 1, minWidth: 0 }}
         >
           {/* Type badge */}
-          <div style={{ marginBottom: 10 }}>
+          {/* <div style={{ marginBottom: 10 }}>
             <span
               style={{
                 display: "inline-flex",
@@ -145,7 +145,7 @@ export default function DetailHero({ data, type }) {
             >
               {isTV ? "TV Series" : "Movie"}
             </span>
-          </div>
+          </div> */}
 
           {/* Title */}
           <h1
