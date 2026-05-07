@@ -1,8 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
-import { ArrowLeft, ExternalLink, Bookmark, BookmarkCheck, LogIn } from "lucide-react";
+import {
+  ArrowLeft,
+  ExternalLink,
+  Bookmark,
+  BookmarkCheck,
+  LogIn,
+} from "lucide-react";
 
 import { getMovieDetails } from "../../../features/movies/movie.api";
 import { getTVDetails } from "../../../features/tv/tv.api";
@@ -96,7 +102,9 @@ function BookmarkButton({ isBookmarked, onToggle, user, onSignIn }) {
           fontFamily: "inherit",
           pointerEvents: "all",
           transition: "border-color 0.2s, color 0.2s",
-          borderColor: hovered ? "var(--color-gold-border)" : "var(--color-border)",
+          borderColor: hovered
+            ? "var(--color-gold-border)"
+            : "var(--color-border)",
         }}
       >
         <LogIn style={{ width: 13, height: 13 }} />
@@ -122,7 +130,11 @@ function BookmarkButton({ isBookmarked, onToggle, user, onSignIn }) {
           : "rgba(9,9,11,0.72)",
         backdropFilter: "blur(10px)",
         border: `1px solid ${isBookmarked ? "var(--color-gold-border)" : hovered ? "var(--color-gold-border)" : "var(--color-border)"}`,
-        color: isBookmarked ? "var(--color-gold)" : hovered ? "var(--color-gold)" : "var(--color-text-secondary)",
+        color: isBookmarked
+          ? "var(--color-gold)"
+          : hovered
+            ? "var(--color-gold)"
+            : "var(--color-text-secondary)",
         fontSize: 12,
         fontWeight: 600,
         cursor: "pointer",
@@ -141,7 +153,9 @@ function BookmarkButton({ isBookmarked, onToggle, user, onSignIn }) {
             transition={{ duration: 0.18, type: "spring", stiffness: 320 }}
             style={{ display: "flex" }}
           >
-            <BookmarkCheck style={{ width: 13, height: 13, strokeWidth: 2.5 }} />
+            <BookmarkCheck
+              style={{ width: 13, height: 13, strokeWidth: 2.5 }}
+            />
           </motion.span>
         ) : (
           <motion.span
@@ -208,65 +222,66 @@ export default function DetailPage() {
 
   const handleToggleBookmark = () => {
     toggle({ id: Number(id), media_type: type });
-    toast.custom((t) => (
-      <motion.div
-        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0 }}
-        style={{
-          background: "var(--color-bg-overlay)",
-          border: "1px solid var(--color-gold-border)",
-          borderRadius: "var(--radius-lg)",
-          padding: "10px 16px",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          color: "var(--color-text-secondary)",
-          fontSize: 13,
-          fontWeight: 500,
-          boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
-        }}
-      >
-        <BookmarkCheck style={{ width: 15, height: 15, color: "var(--color-gold)" }} />
-        <span>
-          {isBookmarked
-            ? "Removed from bookmarks"
-            : <><span style={{ color: "var(--color-gold)", fontWeight: 700 }}>Saved</span> to bookmarks</>}
-        </span>
-      </motion.div>
-    ), { duration: 2200 });
+    toast.custom(
+      (t) => (
+        <motion.div
+          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0 }}
+          style={{
+            background: "var(--color-bg-overlay)",
+            border: "1px solid var(--color-gold-border)",
+            borderRadius: "var(--radius-lg)",
+            padding: "10px 16px",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            color: "var(--color-text-secondary)",
+            fontSize: 13,
+            fontWeight: 500,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+          }}
+        >
+          <BookmarkCheck
+            style={{ width: 15, height: 15, color: "var(--color-gold)" }}
+          />
+          <span>
+            {isBookmarked ? (
+              "Removed from bookmarks"
+            ) : (
+              <>
+                <span style={{ color: "var(--color-gold)", fontWeight: 700 }}>
+                  Saved
+                </span>{" "}
+                to bookmarks
+              </>
+            )}
+          </span>
+        </motion.div>
+      ),
+      { duration: 2200 },
+    );
   };
 
-  const handleSignInPrompt = () => {
-    toast.custom((t) => (
-      <motion.div
-        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0 }}
+  const handleSignInPrompt = useCallback(() => {
+    toast.custom(() => (
+      <div
         style={{
           background: "var(--color-bg-overlay)",
           border: "1px solid var(--color-gold-border)",
           borderRadius: "var(--radius-lg)",
           padding: "12px 16px",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
           color: "var(--color-text-secondary)",
-          fontSize: 13,
-          fontWeight: 500,
           boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
-          cursor: "pointer",
+          backdropFilter: "blur(12px)",
         }}
-        onClick={() => { toast.dismiss(t.id); navigate("/login"); }}
       >
-        <span style={{ fontSize: 16 }}>🔐</span>
-        <span>
-          <span style={{ color: "var(--color-gold)", fontWeight: 700 }}>Sign in</span>
-          {" "}to save this to your bookmarks
-        </span>
-      </motion.div>
-    ), { duration: 3000 });
-  };
+        🔐 Please sign in to save bookmarks
+      </div>
+    ));
+
+    navigate("/login");
+  }, [navigate]);
 
   /* ── Loading ── */
   if (loading) return <LoadingSkeleton />;
@@ -286,7 +301,13 @@ export default function DetailPage() {
         }}
       >
         <span style={{ fontSize: 32 }}>⚠️</span>
-        <p style={{ fontSize: 15, color: "var(--color-text-muted)", textAlign: "center" }}>
+        <p
+          style={{
+            fontSize: 15,
+            color: "var(--color-text-muted)",
+            textAlign: "center",
+          }}
+        >
           {error ?? "Something went wrong."}
         </p>
         <button
@@ -406,7 +427,8 @@ export default function DetailPage() {
                   transition: "border-color 0.2s, color 0.2s",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "var(--color-gold-border)";
+                  e.currentTarget.style.borderColor =
+                    "var(--color-gold-border)";
                   e.currentTarget.style.color = "var(--color-gold)";
                 }}
                 onMouseLeave={(e) => {
@@ -427,7 +449,9 @@ export default function DetailPage() {
         </div>
 
         {/* ── Body ── */}
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 16px 0" }}>
+        <div
+          style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 16px 0" }}
+        >
           <DetailMeta data={data} type={type} />
           <Divider />
 

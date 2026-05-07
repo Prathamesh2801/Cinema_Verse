@@ -46,11 +46,8 @@ export default function MediaCard({
     e.stopPropagation();
     if (!user) {
       toast.custom(
-        (t) => (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.95 }}
+        () => (
+          <div
             style={{
               background: "var(--color-bg-overlay)",
               border: "1px solid var(--color-gold-border)",
@@ -64,24 +61,24 @@ export default function MediaCard({
               color: "var(--color-text-secondary)",
               fontSize: 13,
               fontWeight: 500,
-              cursor: "pointer",
-            }}
-            onClick={() => {
-              toast.dismiss(t.id);
-              navigate("/login");
+              backdropFilter: "blur(10px)",
             }}
           >
             <span style={{ fontSize: 16 }}>🔐</span>
+
             <span>
               <span style={{ color: "var(--color-gold)", fontWeight: 700 }}>
-                Sign in
+                Please sign in
               </span>{" "}
               to save bookmarks
             </span>
-          </motion.div>
+          </div>
         ),
-        { duration: 3000 },
+        { duration: 2500 },
       );
+
+      navigate("/login");
+
       return;
     }
     toggle({ id: item.id, media_type: resolvedType });
@@ -116,39 +113,6 @@ export default function MediaCard({
       );
     }
 
-    if (!user) {
-      /* Subtle "sign in" hint — just a faded lock icon, no clutter */
-      return (
-        <motion.button
-          whileTap={{ scale: 0.85 }}
-          onClick={handleBookmark}
-          title="Sign in to bookmark"
-          style={{
-            position: "absolute",
-            top: 6,
-            left: 6,
-            width: 26,
-            height: 26,
-            borderRadius: "var(--radius-sm)",
-            background: "rgba(9,9,11,0.60)",
-            backdropFilter: "blur(6px)",
-            border: "1px solid var(--color-border)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            zIndex: 2,
-            opacity: 0.55,
-            transition: "opacity 0.2s",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.55")}
-        >
-          <span style={{ fontSize: 11 }}>🔒</span>
-        </motion.button>
-      );
-    }
-
     return (
       <motion.button
         whileTap={{ scale: 0.85 }}
@@ -163,7 +127,9 @@ export default function MediaCard({
           borderRadius: "var(--radius-sm)",
           background: isBookmarked ? "var(--color-gold)" : "rgba(9,9,11,0.72)",
           backdropFilter: "blur(6px)",
-          border: `1px solid ${isBookmarked ? "var(--color-gold)" : "var(--color-border)"}`,
+          border: `1px solid ${
+            isBookmarked ? "var(--color-gold)" : "var(--color-border)"
+          }`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -336,8 +302,6 @@ export default function MediaCard({
             </span>
           </div>
         )}
-
-       
       </div>
 
       {/* ── Title + year ── */}
