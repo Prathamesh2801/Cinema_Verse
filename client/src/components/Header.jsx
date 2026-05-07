@@ -106,14 +106,14 @@ export default function Header() {
           <Link to="/" className="flex items-center gap-2.5 shrink-0 mr-2">
             <img
               src={Logo}
-              alt="StreamVerse"
+              alt="CinemaVerse"
               style={{ height: 60, width: "auto", objectFit: "contain" }}
             />
             <span
               className="font-bold tracking-wide text-lg"
               style={{ color: "var(--color-text-primary)" }}
             >
-              Stream<span style={{ color: "var(--color-gold)" }}>Verse</span>
+              Cinema<span style={{ color: "var(--color-gold)" }}>Verse</span>
             </span>
           </Link>
 
@@ -288,14 +288,14 @@ export default function Header() {
           >
             <img
               src={Logo}
-              alt="StreamVerse"
+              alt="CinemaVerse"
               style={{ height: 36, width: "auto", objectFit: "contain" }}
             />
             <span
               className="font-extrabold text-sm tracking-tight"
               style={{ color: "var(--color-text-primary)" }}
             >
-              Stream<span style={{ color: "var(--color-gold)" }}>Verse</span>
+              Cinema<span style={{ color: "var(--color-gold)" }}>Verse</span>
             </span>
           </Link>
 

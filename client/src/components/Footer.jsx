@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
-import Logo from '../assets/img/logo.png';
+import Logo from "../assets/img/logo.png";
+import { href } from "react-router-dom";
 
 export default function Footer() {
   return (
@@ -8,6 +9,7 @@ export default function Footer() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.3 }}
+      className="pb-16 md:pb-0"
       style={{
         background: "var(--color-bg-elevated)",
         borderTop: "1px solid var(--color-border)",
@@ -29,10 +31,10 @@ export default function Footer() {
           {/* Brand */}
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <img 
-                src={Logo} 
-                alt="StreamVerse" 
-                style={{ height: 60, width: 'auto', objectFit: 'contain' }}
+              <img
+                src={Logo}
+                alt="CinemaVerse"
+                style={{ height: 60, width: "auto", objectFit: "contain" }}
               />
               <span
                 style={{
@@ -41,7 +43,7 @@ export default function Footer() {
                   color: "var(--color-text-primary)",
                 }}
               >
-                Stream<span style={{ color: "var(--color-gold)" }}>Verse</span>
+                Cinema<span style={{ color: "var(--color-gold)" }}>Verse</span>
               </span>
             </div>
             <p
@@ -52,7 +54,8 @@ export default function Footer() {
                 lineHeight: 1.55,
               }}
             >
-              Discover movies and TV shows. Powered by TMDB.
+              Discover trending movies, TV shows, reviews, and bookmarks —
+              powered by TMDB.
             </p>
           </div>
 
@@ -97,43 +100,93 @@ export default function Footer() {
           </div>
 
           {/* Social */}
-          <div style={{ display: "flex", gap: 8 }}>
-            {[
-              { icon: FaLinkedin, label: "Linkedin" },
-              { icon: FaGithub, label: "GitHub" },
-            ].map(({ icon: Icon, label }) => (
-              <a
-                key={label}
-                href="#"
-                aria-label={label}
-                style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: "var(--radius-full)",
-                  background: "var(--color-bg-overlay)",
-                  border: "1px solid var(--color-border)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "border-color 0.2s, background 0.2s",
-                  textDecoration: "none",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor =
-                    "var(--color-gold-border)";
-                  e.currentTarget.style.background = "var(--color-gold-glow)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "var(--color-border)";
-                  e.currentTarget.style.background = "var(--color-bg-overlay)";
-                }}
-              >
-                <Icon
-                  className="w-4 h-4"
-                  style={{ color: "var(--color-text-muted)" }}
-                />
-              </a>
-            ))}
+          {/* Social */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: window.innerWidth < 768 ? "row" : "column",
+              alignItems: window.innerWidth < 768 ? "center" : "flex-end",
+              justifyContent: "space-between",
+              gap: window.innerWidth < 768 ? 12 : 14,
+              width: window.innerWidth < 768 ? "100%" : "auto",
+              minWidth: window.innerWidth < 768 ? "100%" : 240,
+            }}
+          >
+            {/* Icons */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                flexShrink: 0,
+              }}
+            >
+              {[
+                {
+                  icon: FaLinkedin,
+                  label: "LinkedIn",
+                  href: "https://www.linkedin.com/in/prathamesh-kamble-51b8502a5/",
+                },
+                {
+                  icon: FaGithub,
+                  label: "GitHub",
+                  href: "https://github.com/Prathamesh2801",
+                },
+              ].map(({ icon: Icon, label, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    background: "var(--color-bg-overlay)",
+                    border: "1px solid var(--color-border)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.25s ease",
+                    textDecoration: "none",
+                    flexShrink: 0,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor =
+                      "var(--color-gold-border)";
+                    e.currentTarget.style.background = "var(--color-gold-glow)";
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "var(--color-border)";
+                    e.currentTarget.style.background =
+                      "var(--color-bg-overlay)";
+                    e.currentTarget.style.transform = "translateY(0px)";
+                  }}
+                >
+                  <Icon
+                    className="w-4 h-4"
+                    style={{
+                      color: "var(--color-text-muted)",
+                    }}
+                  />
+                </a>
+              ))}
+            </div>
+
+            {/* Tech Stack */}
+            <span
+              style={{
+                fontSize: 11,
+                color: "var(--color-text-muted)",
+                lineHeight: 1.6,
+                textAlign: window.innerWidth < 768 ? "right" : "right",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Built with React.js , Node.js & MongoDB
+            </span>
           </div>
         </div>
 
@@ -141,8 +194,8 @@ export default function Footer() {
         <div
           style={{
             borderTop: "1px solid var(--color-border-subtle)",
-            marginTop: 28,
-            paddingTop: 20,
+            marginTop: 10,
+            paddingTop: 10,
             display: "flex",
             flexWrap: "wrap",
             justifyContent: "space-between",
@@ -152,13 +205,45 @@ export default function Footer() {
             color: "var(--color-text-muted)",
           }}
         >
-          <span>
-            © {new Date().getFullYear()} StreamVerse. All rights reserved.
-          </span>
-          <span>
-            Data provided by{" "}
-            <span style={{ color: "var(--color-text-secondary)" }}>TMDB</span>
-          </span>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 8,
+              width: "100%",
+            }}
+          >
+            <span>
+              © {new Date().getFullYear()}{" "}
+              <span
+                style={{
+                  color: "var(--color-gold)",
+                  textDecoration: "none",
+                  fontWeight: 600,
+                }}
+              >
+                CinemaVerse
+              </span>{" "}
+            </span>
+
+            <span>
+              Designed & Developed by{" "}
+              <a
+                href="https://www.linkedin.com/in/prathamesh-kamble-51b8502a5/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: "var(--color-gold)",
+                  textDecoration: "none",
+                  fontWeight: 600,
+                }}
+              >
+                Prathamesh Kamble
+              </a>
+            </span>
+          </div>
         </div>
       </div>
     </motion.footer>

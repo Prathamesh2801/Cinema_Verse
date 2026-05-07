@@ -87,7 +87,7 @@ export default function RowSlider({ title, data = [] }) {
         }}
       >
         {data.map((item, i) => (
-          <MediaCard key={item.id} item={item} index={i} />
+          <MediaCard key={item.id} item={item} index={i}  />
         ))}
       </div>
     </motion.section>

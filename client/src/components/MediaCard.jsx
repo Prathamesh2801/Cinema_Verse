@@ -337,34 +337,7 @@ export default function MediaCard({
           </div>
         )}
 
-        {/* Media type badge */}
-        {!showRemove && (
-          <div
-            className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            style={{
-              bottom: 28,
-              left: 6,
-              background: isTV
-                ? "var(--color-royal-dim)"
-                : "var(--color-gold-glow)",
-              border: `1px solid ${isTV ? "var(--color-royal-border)" : "var(--color-gold-border)"}`,
-              borderRadius: "var(--radius-sm)",
-              padding: "2px 5px",
-            }}
-          >
-            <span
-              style={{
-                fontSize: 9,
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                color: isTV ? "var(--color-text-royal)" : "var(--color-gold)",
-              }}
-            >
-              {isTV ? "TV" : "Film"}
-            </span>
-          </div>
-        )}
+       
       </div>
 
       {/* ── Title + year ── */}
