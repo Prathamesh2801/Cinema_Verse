@@ -1,18 +1,49 @@
 import tmdbClient from "../../config/tmdbClient.js";
+import { filterMediaContent } from "../../utils/moderation/filterMediaContent.js";
 
 export async function getPopularTV() {
   const res = await tmdbClient.get("/tv/popular");
-  return res.data;
+
+  const filteredResults = filterMediaContent(res.data.results, {
+    minVoteCount: 500,
+    minVoteAverage: 6.8,
+    requirePoster: true,
+  });
+
+  return {
+    ...res.data,
+    results: filteredResults,
+  };
 }
 
 export async function getTopRatedTV() {
   const res = await tmdbClient.get("/tv/top_rated");
-  return res.data;
+
+  const filteredResults = filterMediaContent(res.data.results, {
+    minVoteCount: 800,
+    minVoteAverage: 7,
+    requirePoster: true,
+  });
+
+  return {
+    ...res.data,
+    results: filteredResults,
+  };
 }
 
 export async function getAiringTodayTV() {
   const res = await tmdbClient.get("/tv/airing_today");
-  return res.data;
+
+  const filteredResults = filterMediaContent(res.data.results, {
+    minVoteCount: 250,
+    minVoteAverage: 6.5,
+    requirePoster: true,
+  });
+
+  return {
+    ...res.data,
+    results: filteredResults,
+  };
 }
 
 export async function getTVDetails(id) {
