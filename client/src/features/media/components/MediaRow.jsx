@@ -3,13 +3,12 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import MediaCard from "./MediaCard";
 
-export default function RowSlider({ title, data = [] }) {
+export default function MediaRow({ title, data = [] }) {
   const scrollRef = useRef(null);
 
   const scroll = (dir) => {
     scrollRef.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
   };
-
   if (!data.length) return null;
 
   return (
@@ -43,7 +42,10 @@ export default function RowSlider({ title, data = [] }) {
 
         {/* Arrow buttons */}
         <div style={{ display: "flex", gap: 6 }}>
-          {[{ dir: -1, icon: ChevronLeft }, { dir: 1, icon: ChevronRight }].map(({ dir, icon: Icon }) => (
+          {[
+            { dir: -1, icon: ChevronLeft },
+            { dir: 1, icon: ChevronRight },
+          ].map(({ dir, icon: Icon }) => (
             <button
               key={dir}
               onClick={() => scroll(dir)}
@@ -61,14 +63,17 @@ export default function RowSlider({ title, data = [] }) {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = "var(--color-gold-border)";
-                e.currentTarget.style.background  = "var(--color-gold-glow)";
+                e.currentTarget.style.background = "var(--color-gold-glow)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = "var(--color-border)";
-                e.currentTarget.style.background  = "var(--color-bg-elevated)";
+                e.currentTarget.style.background = "var(--color-bg-elevated)";
               }}
             >
-              <Icon className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} />
+              <Icon
+                className="w-4 h-4"
+                style={{ color: "var(--color-text-muted)" }}
+              />
             </button>
           ))}
         </div>
@@ -87,7 +92,12 @@ export default function RowSlider({ title, data = [] }) {
         }}
       >
         {data.map((item, i) => (
-          <MediaCard key={item.id} item={item} index={i}  />
+          <MediaCard
+            key={item.id}
+            item={item}
+            index={i}
+            mediaType={item.mediaType}
+          />
         ))}
       </div>
     </motion.section>

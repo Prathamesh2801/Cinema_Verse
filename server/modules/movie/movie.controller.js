@@ -4,19 +4,35 @@ import {
   discoverMovies,
 } from "./movie.service.js";
 
+// ======================================
+// 🔥 POPULAR MOVIES
+// ======================================
+
 export async function getPopularMoviesAPI(req, res) {
   try {
-    const data = await getPopularMovies();
+    const page = Number(req.query.page) || 1;
+
+    const data = await getPopularMovies(page);
+
     res.json(data.results);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching popular movies" });
+    res.status(500).json({
+      message: "Error fetching popular movies",
+    });
   }
 }
 
+// ======================================
+// ⭐ TOP RATED MOVIES
+// ======================================
+
 export async function getTopRatedMoviesAPI(req, res) {
   try {
+    const page = Number(req.query.page) || 1;
+
     const data = await discoverMovies(
       {
+        page,
         sort_by: "vote_average.desc",
         "vote_count.gte": 1000,
       },
@@ -29,14 +45,23 @@ export async function getTopRatedMoviesAPI(req, res) {
 
     res.json(data.results);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching top rated movies" });
+    res.status(500).json({
+      message: "Error fetching top rated movies",
+    });
   }
 }
 
+// ======================================
+// 🚀 LATEST MOVIES
+// ======================================
+
 export async function getLatestMoviesAPI(req, res) {
   try {
+    const page = Number(req.query.page) || 1;
+
     const data = await discoverMovies(
       {
+        page,
         sort_by: "release_date.desc",
         "vote_count.gte": 300,
       },
@@ -49,16 +74,26 @@ export async function getLatestMoviesAPI(req, res) {
 
     res.json(data.results);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching latest movies" });
+    res.status(500).json({
+      message: "Error fetching latest movies",
+    });
   }
 }
+
+// ======================================
+// 🎬 MOVIE DETAILS
+// ======================================
 
 export async function getMovieDetailAPI(req, res) {
   try {
     const { id } = req.params;
+
     const data = await getMovieDetails(id);
+
     res.json(data);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching movie details" });
+    res.status(500).json({
+      message: "Error fetching movie details",
+    });
   }
 }

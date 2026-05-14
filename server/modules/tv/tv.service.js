@@ -1,8 +1,15 @@
 import tmdbClient from "../../config/tmdbClient.js";
+
 import { filterMediaContent } from "../../utils/moderation/filterMediaContent.js";
 
-export async function getPopularTV() {
-  const res = await tmdbClient.get("/tv/popular");
+// ======================================
+// 📺 POPULAR TV
+// ======================================
+
+export async function getPopularTV(page = 1) {
+  const res = await tmdbClient.get("/tv/popular", {
+    params: { page },
+  });
 
   const filteredResults = filterMediaContent(res.data.results, {
     minVoteCount: 500,
@@ -16,8 +23,14 @@ export async function getPopularTV() {
   };
 }
 
-export async function getTopRatedTV() {
-  const res = await tmdbClient.get("/tv/top_rated");
+// ======================================
+// ⭐ TOP RATED TV
+// ======================================
+
+export async function getTopRatedTV(page = 1) {
+  const res = await tmdbClient.get("/tv/top_rated", {
+    params: { page },
+  });
 
   const filteredResults = filterMediaContent(res.data.results, {
     minVoteCount: 800,
@@ -31,8 +44,14 @@ export async function getTopRatedTV() {
   };
 }
 
-export async function getAiringTodayTV() {
-  const res = await tmdbClient.get("/tv/airing_today");
+// ======================================
+// 🚀 AIRING TODAY
+// ======================================
+
+export async function getAiringTodayTV(page = 1) {
+  const res = await tmdbClient.get("/tv/airing_today", {
+    params: { page },
+  });
 
   const filteredResults = filterMediaContent(res.data.results, {
     minVoteCount: 250,
@@ -46,7 +65,12 @@ export async function getAiringTodayTV() {
   };
 }
 
+// ======================================
+// 📺 TV DETAILS
+// ======================================
+
 export async function getTVDetails(id) {
   const res = await tmdbClient.get(`/tv/${id}`);
+
   return res.data;
 }

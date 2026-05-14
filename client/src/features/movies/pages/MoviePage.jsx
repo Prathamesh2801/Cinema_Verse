@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { TrendingUp, Tv2,Clock } from "lucide-react";
+import { TrendingUp, Tv2, Clock } from "lucide-react";
 import {
   getPopularMovies,
   getLatestMovies,
   getTopRatedMovies,
 } from "../movie.api";
-import RowSlider from "../../../components/RowSlider";
+import MediaRow from "../../../components/MediaRow";
 
 export default function MoviePage() {
   const [popular, setPopular] = useState([]);
@@ -78,13 +78,13 @@ export default function MoviePage() {
       {/* ── Content rows ── */}
       <div style={{ maxWidth: 1280, margin: "0 auto", paddingTop: 8 }}>
         <SectionLabel icon={TrendingUp} label="Popular Movies" />
-        <RowSlider title="Popular Movies" data={popular} />
+        <MediaRow title="Popular Movies" data={popular} />
 
         <SectionLabel icon={Tv2} label="Top Rated Movies" />
-        <RowSlider title="Top Rated Movies" data={topRated} />
+        <MediaRow title="Top Rated Movies" data={topRated} />
 
         <SectionLabel icon={Tv2} label="Latest Movies" />
-        <RowSlider title="Latest Movies" data={nowPlaying} />
+        <MediaRow title="Latest Movies" data={nowPlaying} />
       </div>
     </main>
   );

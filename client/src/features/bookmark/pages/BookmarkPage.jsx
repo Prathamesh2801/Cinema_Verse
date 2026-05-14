@@ -8,7 +8,7 @@ import { useAuth } from "../../auth/context/AuthContext"; // adjust to your auth
 import { getMovieDetails } from "../../movies/movie.api";
 import { getTVDetails } from "../../tv/tv.api";
 
-import MediaCard from "../../../components/MediaCard";
+import MediaCard from "../../media/components/MediaCard";
 
 /* ── Skeleton card ── */
 function SkeletonCard({ index }) {
@@ -31,11 +31,22 @@ function SkeletonCard({ index }) {
       <div style={{ marginTop: 8, paddingLeft: 2 }}>
         <div
           className="shimmer-card"
-          style={{ height: 10, width: "80%", borderRadius: 4, background: "var(--color-bg-elevated)", marginBottom: 5 }}
+          style={{
+            height: 10,
+            width: "80%",
+            borderRadius: 4,
+            background: "var(--color-bg-elevated)",
+            marginBottom: 5,
+          }}
         />
         <div
           className="shimmer-card"
-          style={{ height: 8, width: "40%", borderRadius: 4, background: "var(--color-bg-elevated)" }}
+          style={{
+            height: 8,
+            width: "40%",
+            borderRadius: 4,
+            background: "var(--color-bg-elevated)",
+          }}
         />
       </div>
     </motion.div>
@@ -77,7 +88,12 @@ function EmptyBookmarks() {
           }}
         >
           <Bookmark
-            style={{ width: 32, height: 32, color: "var(--color-gold)", strokeWidth: 1.5 }}
+            style={{
+              width: 32,
+              height: 32,
+              color: "var(--color-gold)",
+              strokeWidth: 1.5,
+            }}
           />
         </div>
         {/* Subtle orbit dots */}
@@ -85,7 +101,11 @@ function EmptyBookmarks() {
           <motion.div
             key={i}
             animate={{ rotate: 360 }}
-            transition={{ duration: 8 + i * 2, repeat: Infinity, ease: "linear" }}
+            transition={{
+              duration: 8 + i * 2,
+              repeat: Infinity,
+              ease: "linear",
+            }}
             style={{
               position: "absolute",
               top: "50%",
@@ -114,10 +134,23 @@ function EmptyBookmarks() {
         >
           Nothing saved yet
         </p>
-        <p style={{ fontSize: 13, color: "var(--color-text-muted)", lineHeight: 1.6, margin: 0 }}>
+        <p
+          style={{
+            fontSize: 13,
+            color: "var(--color-text-muted)",
+            lineHeight: 1.6,
+            margin: 0,
+          }}
+        >
           Tap the{" "}
           <Bookmark
-            style={{ width: 12, height: 12, display: "inline", verticalAlign: "middle", color: "var(--color-gold)" }}
+            style={{
+              width: 12,
+              height: 12,
+              display: "inline",
+              verticalAlign: "middle",
+              color: "var(--color-gold)",
+            }}
           />{" "}
           on any movie or show to save it here for later.
         </p>
@@ -141,8 +174,12 @@ function EmptyBookmarks() {
           letterSpacing: "0.02em",
           transition: "background 0.2s",
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(238,205,129,0.18)")}
-        onMouseLeave={(e) => (e.currentTarget.style.background = "var(--color-gold-glow)")}
+        onMouseEnter={(e) =>
+          (e.currentTarget.style.background = "rgba(238,205,129,0.18)")
+        }
+        onMouseLeave={(e) =>
+          (e.currentTarget.style.background = "var(--color-gold-glow)")
+        }
       >
         Browse Content
       </motion.button>
@@ -198,8 +235,16 @@ function AuthGate() {
         >
           Sign in to view bookmarks
         </p>
-        <p style={{ fontSize: 13, color: "var(--color-text-muted)", lineHeight: 1.6, margin: 0 }}>
-          Create an account or sign in to save movies and shows across all your devices.
+        <p
+          style={{
+            fontSize: 13,
+            color: "var(--color-text-muted)",
+            lineHeight: 1.6,
+            margin: 0,
+          }}
+        >
+          Create an account or sign in to save movies and shows across all your
+          devices.
         </p>
       </div>
 
@@ -352,7 +397,7 @@ export default function BookmarkPage() {
   });
 
   const movieCount = items.filter((i) => i.media_type === "movie").length;
-  const tvCount    = items.filter((i) => i.media_type === "tv").length;
+  const tvCount = items.filter((i) => i.media_type === "tv").length;
 
   return (
     <>
@@ -388,7 +433,14 @@ export default function BookmarkPage() {
           }}
         >
           {/* Title row */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              marginBottom: 6,
+            }}
+          >
             <div
               style={{
                 width: 34,
@@ -401,7 +453,14 @@ export default function BookmarkPage() {
                 justifyContent: "center",
               }}
             >
-              <Bookmark style={{ width: 16, height: 16, color: "var(--color-gold)", strokeWidth: 2 }} />
+              <Bookmark
+                style={{
+                  width: 16,
+                  height: 16,
+                  color: "var(--color-gold)",
+                  strokeWidth: 2,
+                }}
+              />
             </div>
             <div>
               <h1
@@ -416,10 +475,19 @@ export default function BookmarkPage() {
                 My Bookmarks
               </h1>
               {!loading && (
-                <p style={{ fontSize: 11, color: "var(--color-text-muted)", margin: 0, marginTop: 1 }}>
+                <p
+                  style={{
+                    fontSize: 11,
+                    color: "var(--color-text-muted)",
+                    margin: 0,
+                    marginTop: 1,
+                  }}
+                >
                   {items.length} saved
-                  {movieCount > 0 && ` · ${movieCount} film${movieCount !== 1 ? "s" : ""}`}
-                  {tvCount > 0 && ` · ${tvCount} show${tvCount !== 1 ? "s" : ""}`}
+                  {movieCount > 0 &&
+                    ` · ${movieCount} film${movieCount !== 1 ? "s" : ""}`}
+                  {tvCount > 0 &&
+                    ` · ${tvCount} show${tvCount !== 1 ? "s" : ""}`}
                 </p>
               )}
             </div>
@@ -441,9 +509,11 @@ export default function BookmarkPage() {
               {FILTERS.map((f) => {
                 const isActive = filter === f;
                 const count =
-                  f === "Movies" ? movieCount :
-                  f === "TV Shows" ? tvCount :
-                  items.length;
+                  f === "Movies"
+                    ? movieCount
+                    : f === "TV Shows"
+                      ? tvCount
+                      : items.length;
 
                 return (
                   <motion.button
@@ -454,8 +524,12 @@ export default function BookmarkPage() {
                       padding: "6px 14px",
                       borderRadius: "var(--radius-full)",
                       border: `1px solid ${isActive ? "var(--color-gold-border)" : "var(--color-border)"}`,
-                      background: isActive ? "var(--color-gold-glow)" : "transparent",
-                      color: isActive ? "var(--color-gold)" : "var(--color-text-muted)",
+                      background: isActive
+                        ? "var(--color-gold-glow)"
+                        : "transparent",
+                      color: isActive
+                        ? "var(--color-gold)"
+                        : "var(--color-text-muted)",
                       fontSize: 12,
                       fontWeight: 600,
                       cursor: "pointer",
@@ -466,16 +540,26 @@ export default function BookmarkPage() {
                       transition: "all 0.2s",
                     }}
                   >
-                    {f === "Movies" && <Film style={{ width: 11, height: 11 }} />}
-                    {f === "TV Shows" && <Tv style={{ width: 11, height: 11 }} />}
-                    {f === "All" && <SlidersHorizontal style={{ width: 11, height: 11 }} />}
+                    {f === "Movies" && (
+                      <Film style={{ width: 11, height: 11 }} />
+                    )}
+                    {f === "TV Shows" && (
+                      <Tv style={{ width: 11, height: 11 }} />
+                    )}
+                    {f === "All" && (
+                      <SlidersHorizontal style={{ width: 11, height: 11 }} />
+                    )}
                     {f}
                     <span
                       style={{
                         fontSize: 10,
                         fontWeight: 700,
-                        color: isActive ? "var(--color-gold)" : "var(--color-text-muted)",
-                        background: isActive ? "rgba(238,205,129,0.15)" : "rgba(255,255,255,0.05)",
+                        color: isActive
+                          ? "var(--color-gold)"
+                          : "var(--color-text-muted)",
+                        background: isActive
+                          ? "rgba(238,205,129,0.15)"
+                          : "rgba(255,255,255,0.05)",
                         padding: "1px 5px",
                         borderRadius: "var(--radius-full)",
                       }}
@@ -489,11 +573,18 @@ export default function BookmarkPage() {
           )}
 
           {/* Divider */}
-          <div style={{ borderTop: "1px solid var(--color-border-subtle)", marginTop: 16 }} />
+          <div
+            style={{
+              borderTop: "1px solid var(--color-border-subtle)",
+              marginTop: 16,
+            }}
+          />
         </div>
 
         {/* ── Content ── */}
-        <div style={{ padding: "20px 20px 0", maxWidth: 1280, margin: "0 auto" }}>
+        <div
+          style={{ padding: "20px 20px 0", maxWidth: 1280, margin: "0 auto" }}
+        >
           {loading ? (
             /* Skeleton grid */
             <div
@@ -503,9 +594,11 @@ export default function BookmarkPage() {
                 gap: 16,
               }}
             >
-              {Array.from({ length: Math.min(bookmarks.length || 8, 18) }).map((_, i) => (
-                <SkeletonCard key={i} index={i} />
-              ))}
+              {Array.from({ length: Math.min(bookmarks.length || 8, 18) }).map(
+                (_, i) => (
+                  <SkeletonCard key={i} index={i} />
+                ),
+              )}
             </div>
           ) : items.length === 0 ? (
             <EmptyBookmarks />
@@ -525,11 +618,29 @@ export default function BookmarkPage() {
               }}
             >
               {filter === "Movies" ? (
-                <Film style={{ width: 32, height: 32, color: "var(--color-text-muted)" }} />
+                <Film
+                  style={{
+                    width: 32,
+                    height: 32,
+                    color: "var(--color-text-muted)",
+                  }}
+                />
               ) : (
-                <Tv style={{ width: 32, height: 32, color: "var(--color-text-muted)" }} />
+                <Tv
+                  style={{
+                    width: 32,
+                    height: 32,
+                    color: "var(--color-text-muted)",
+                  }}
+                />
               )}
-              <p style={{ fontSize: 14, color: "var(--color-text-muted)", margin: 0 }}>
+              <p
+                style={{
+                  fontSize: 14,
+                  color: "var(--color-text-muted)",
+                  margin: 0,
+                }}
+              >
                 No {filter.toLowerCase()} saved yet.
               </p>
               <motion.button

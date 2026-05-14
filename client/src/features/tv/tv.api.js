@@ -1,8 +1,8 @@
 import api from "../../services/api";
 
 // 🔹 Popular TV
-export const getPopularTV = async () => {
-  const res = await api.get("/tv/popular");
+export const getPopularTV = async (page = 1) => {
+  const res = await api.get(`/tv/popular?page=${page}`);
 
   return res.data.map((item) => ({
     ...item,
@@ -11,8 +11,8 @@ export const getPopularTV = async () => {
 };
 
 // 🔹 Top Rated TV
-export const getTopRatedTV = async () => {
-  const res = await api.get("/tv/top-rated");
+export const getTopRatedTV = async (page = 1) => {
+  const res = await api.get(`/tv/top-rated?page=${page}`);
 
   return res.data.map((item) => ({
     ...item,
@@ -21,8 +21,8 @@ export const getTopRatedTV = async () => {
 };
 
 // 🔹 Latest / Airing Today
-export const getLatestTV = async () => {
-  const res = await api.get("/tv/airing-today");
+export const getLatestTV = async (page = 1) => {
+  const res = await api.get(`/tv/airing-today?page=${page}`);
 
   return res.data.map((item) => ({
     ...item,

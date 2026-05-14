@@ -1,16 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, ImageOff, Bookmark, BookmarkCheck, Trash2 } from "lucide-react";
-import { useBookmarks } from "../features/bookmark/context/BookmarkContext";
-import { useAuth } from "../features/auth/context/AuthContext"; // adjust path to your auth context
-import { getImageUrl, IMAGE_SIZES } from "../utils/image";
+import { useBookmarks } from "../../bookmark/context/BookmarkContext";
+import { useAuth } from "../../auth/context/AuthContext"; // adjust path to your auth context
+import { getImageUrl, IMAGE_SIZES } from "../../../utils/image";
 import toast from "react-hot-toast";
 
 /**
  * MediaCard
  *
  * Props:
- *   item          — TMDB item (needs id, media_type, poster_path, title/name, etc.)
+ *   item          — TMDB item (needs id, media_type, poster, title/name, etc.)
  *   index         — stagger animation index
  *   mediaType     — "movie" | "tv"  explicit override when item.media_type is absent
  *   showRemove    — boolean  when true shows a full "Remove" button instead of the
@@ -29,7 +29,7 @@ export default function MediaCard({
   const title = item.title || item.name;
   const year = (item.release_date || item.first_air_date || "").slice(0, 4);
   const rating = item.vote_average?.toFixed(1);
-  const hasPoster = !!item.poster_path;
+  const hasPoster = !!item.poster;
 
   const resolvedType =
     mediaType || item.media_type || (item.title ? "movie" : "tv");
@@ -215,8 +215,9 @@ export default function MediaCard({
       >
         {/* Poster image */}
         {hasPoster ? (
+          
           <img
-            src={getImageUrl(item.poster_path, IMAGE_SIZES.small)}
+            src={getImageUrl(item.poster, IMAGE_SIZES.small)}
             alt={title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"

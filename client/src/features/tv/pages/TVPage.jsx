@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { TrendingUp, Tv2 } from "lucide-react";
 import { getPopularTV, getTopRatedTV, getLatestTV } from "../tv.api";
-import RowSlider from "../../../components/RowSlider";
+import MediaRow from "../../../components/MediaRow";
 
 export default function TVPage() {
   const [popular, setPopular] = useState([]);
@@ -74,13 +74,13 @@ export default function TVPage() {
       {/* ── Content rows ── */}
       <div style={{ maxWidth: 1280, margin: "0 auto", paddingTop: 8 }}>
         <SectionLabel icon={TrendingUp} label="Popular TV Series" />
-        <RowSlider title="Popular TV Series" data={popular} />
+        <MediaRow title="Popular TV Series" data={popular} />
 
         <SectionLabel icon={Tv2} label="Top Rated TV Shows" />
-        <RowSlider title="Top Rated TV Shows" data={topRated} />
+        <MediaRow title="Top Rated TV Shows" data={topRated} />
 
         <SectionLabel icon={Tv2} label="Latest TV Shows" />
-        <RowSlider title="Latest TV Shows" data={nowPlaying} />
+        <MediaRow title="Latest TV Shows" data={nowPlaying} />
       </div>
     </main>
   );

@@ -1,8 +1,15 @@
 import tmdbClient from "../../config/tmdbClient.js";
+
 import { filterMediaContent } from "../../utils/moderation/filterMediaContent.js";
 
-export async function getPopularMovies() {
-  const res = await tmdbClient.get("/movie/popular");
+// ======================================
+// 🔥 POPULAR MOVIES
+// ======================================
+
+export async function getPopularMovies(page = 1) {
+  const res = await tmdbClient.get("/movie/popular", {
+    params: { page },
+  });
 
   const filteredResults = filterMediaContent(res.data.results, {
     minVoteCount: 500,
@@ -15,6 +22,10 @@ export async function getPopularMovies() {
     results: filteredResults,
   };
 }
+
+// ======================================
+// ⭐ DISCOVER MOVIES
+// ======================================
 
 export async function discoverMovies(params = {}, moderationConfig = {}) {
   const res = await tmdbClient.get("/discover/movie", {
@@ -34,7 +45,12 @@ export async function discoverMovies(params = {}, moderationConfig = {}) {
   };
 }
 
+// ======================================
+// 🎬 MOVIE DETAILS
+// ======================================
+
 export async function getMovieDetails(id) {
   const res = await tmdbClient.get(`/movie/${id}`);
+
   return res.data;
 }
