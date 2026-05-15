@@ -1,5 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Play, Plus, Info, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Bookmark, BookmarkCheck, Info, Star } from "lucide-react";
+import { useBookmarks } from "../../bookmark/context/BookmarkContext";
+import { useAuth } from "../../auth/context/AuthContext";
+import toast from "react-hot-toast";
 
 import { getImageUrl, IMAGE_SIZES } from "../../../utils/image";
 
@@ -7,7 +11,59 @@ import { getImageUrl, IMAGE_SIZES } from "../../../utils/image";
 const CONTENT_MAX_W = 1280;
 
 export default function Hero({ media }) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { bookmarks, toggle } = useBookmarks();
+
   if (!media) return null;
+
+  const resolvedType = media.mediaType || (media.title ? "movie" : "tv");
+  const isBookmarked = bookmarks.some(
+    (bookmark) => bookmark.mediaId === media.id && bookmark.mediaType === resolvedType,
+  );
+
+  const handleMoreInfo = () => {
+    navigate(`/${resolvedType}/${media.id}`);
+  };
+
+  const handleToggleBookmark = () => {
+    if (!user) {
+      toast.custom(
+        () => (
+          <div
+            style={{
+              background: "var(--color-bg-overlay)",
+              border: "1px solid var(--color-gold-border)",
+              borderRadius: "var(--radius-lg)",
+              padding: "12px 16px",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              boxShadow: "0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px var(--color-gold-border)",
+              color: "var(--color-text-secondary)",
+              fontSize: 13,
+              fontWeight: 500,
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <span style={{ fontSize: 16 }}>🔐</span>
+            <span>
+              <span style={{ color: "var(--color-gold)", fontWeight: 700 }}>
+                Please sign in
+              </span>{" "}
+              to save bookmarks
+            </span>
+          </div>
+        ),
+        { duration: 2500 },
+      );
+
+      navigate("/login");
+      return;
+    }
+
+    toggle({ id: media.id, media_type: resolvedType });
+  };
 
   return (
     <section
@@ -102,7 +158,6 @@ export default function Hero({ media }) {
           >
             {/* Left column — readable max width */}
             <div style={{ maxWidth: 540 }}>
-
               {/* ── Badge ── */}
               <motion.p
                 initial={{ opacity: 0, y: 5 }}
@@ -120,7 +175,12 @@ export default function Hero({ media }) {
                   gap: 5,
                 }}
               >
-                <Star size={10} fill="currentColor" strokeWidth={0} aria-hidden />
+                <Star
+                  size={10}
+                  fill="currentColor"
+                  strokeWidth={0}
+                  aria-hidden
+                />
                 Featured Tonight
               </motion.p>
 
@@ -167,23 +227,46 @@ export default function Hero({ media }) {
                         fontWeight: 700,
                       }}
                     >
-                      <Star size={11} fill="currentColor" strokeWidth={0} aria-hidden />
+                      <Star
+                        size={11}
+                        fill="currentColor"
+                        strokeWidth={0}
+                        aria-hidden
+                      />
                       {media.rating}
                     </span>
                   )}
                   {media.rating && (media.year || media.genre) && (
-                    <span style={{ color: "rgba(255,255,255,0.28)", fontSize: 11 }}>•</span>
+                    <span
+                      style={{ color: "rgba(255,255,255,0.28)", fontSize: 11 }}
+                    >
+                      •
+                    </span>
                   )}
                   {media.year && (
-                    <span style={{ color: "rgba(255,255,255,0.52)", fontSize: 12.5 }}>
+                    <span
+                      style={{
+                        color: "rgba(255,255,255,0.52)",
+                        fontSize: 12.5,
+                      }}
+                    >
                       {media.year}
                     </span>
                   )}
                   {media.year && media.genre && (
-                    <span style={{ color: "rgba(255,255,255,0.28)", fontSize: 11 }}>•</span>
+                    <span
+                      style={{ color: "rgba(255,255,255,0.28)", fontSize: 11 }}
+                    >
+                      •
+                    </span>
                   )}
                   {media.genre && (
-                    <span style={{ color: "rgba(255,255,255,0.52)", fontSize: 12.5 }}>
+                    <span
+                      style={{
+                        color: "rgba(255,255,255,0.52)",
+                        fontSize: 12.5,
+                      }}
+                    >
                       {media.genre}
                     </span>
                   )}
@@ -224,7 +307,7 @@ export default function Hero({ media }) {
                 }}
               >
                 {/* Watch Now */}
-                <motion.button
+                {/* <motion.button
                   whileHover={{ scale: 1.04, opacity: 0.9 }}
                   whileTap={{ scale: 0.96 }}
                   transition={{ type: "spring", stiffness: 380, damping: 24 }}
@@ -242,15 +325,25 @@ export default function Hero({ media }) {
                     gap: 7,
                   }}
                 >
-                  <Play size={13} fill="currentColor" strokeWidth={0} aria-hidden />
-                  Watch Now
-                </motion.button>
+                  <Play
+                    size={13}
+                    fill="currentColor"
+                    strokeWidth={0}
+                    aria-hidden
+                  />
+                  Watch Trailer
+                </motion.button> */}
 
                 {/* More Info */}
                 <motion.button
-                  whileHover={{ scale: 1.04, background: "rgba(255,255,255,0.2)" }}
+                  type="button"
+                  whileHover={{
+                    scale: 1.04,
+                    background: "rgba(255,255,255,0.2)",
+                  }}
                   whileTap={{ scale: 0.96 }}
                   transition={{ type: "spring", stiffness: 380, damping: 24 }}
+                  onClick={handleMoreInfo}
                   style={{
                     background: "rgba(255,255,255,0.1)",
                     color: "#fff",
@@ -271,13 +364,18 @@ export default function Hero({ media }) {
                   More Info
                 </motion.button>
 
-                {/* Add to List — icon only */}
+                {/* Add to List / Bookmark toggle */}
                 <motion.button
-                  whileHover={{ scale: 1.1, background: "rgba(255,255,255,0.18)" }}
+                  type="button"
+                  whileHover={{
+                    scale: 1.1,
+                    background: "rgba(255,255,255,0.18)",
+                  }}
                   whileTap={{ scale: 0.94 }}
                   transition={{ type: "spring", stiffness: 380, damping: 24 }}
-                  title="Add to My List"
-                  aria-label="Add to My List"
+                  onClick={handleToggleBookmark}
+                  title={isBookmarked ? "Remove from My List" : "Add to My List"}
+                  aria-label={isBookmarked ? "Remove from My List" : "Add to My List"}
                   style={{
                     background: "rgba(255,255,255,0.1)",
                     color: "#fff",
@@ -294,10 +392,17 @@ export default function Hero({ media }) {
                     flexShrink: 0,
                   }}
                 >
-                  <Plus size={16} strokeWidth={2.2} aria-hidden />
+                  {isBookmarked ? (
+                    <BookmarkCheck
+                      size={16}
+                      strokeWidth={2.2}
+                      aria-hidden
+                    />
+                  ) : (
+                    <Bookmark size={16} strokeWidth={2.2} aria-hidden />
+                  )}
                 </motion.button>
               </motion.div>
-
             </div>
           </div>
         </motion.div>

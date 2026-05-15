@@ -130,7 +130,7 @@ export default function HomePage() {
           position: "relative",
           zIndex: 5,
           maxWidth: CONTENT_MAX_W,
-          margin: "clamp(-36px, -4vh, -18px) auto 0",
+          margin: "clamp(-6px, -4vh, -18px) auto 0",
           padding: "0 clamp(16px, 3.5vw, 40px)",
         }}
       >

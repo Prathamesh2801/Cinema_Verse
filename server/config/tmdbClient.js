@@ -5,6 +5,7 @@ const tmdbClient = axios.create({
   params: {
     api_key: process.env.TMDB_API_KEY,
   },
+  timeout: 10000, // 10 seconds timeout for all TMDB requests
 });
 
 tmdbClient.interceptors.response.use(

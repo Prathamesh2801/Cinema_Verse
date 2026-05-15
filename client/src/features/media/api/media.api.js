@@ -7,16 +7,62 @@ import {
 import { getPopularTV, getTopRatedTV, getLatestTV } from "../../tv/tv.api";
 
 // =====================================
-// 🎯 CONTENT FILTER HELPERS
+// 🎯 GENRE CONSTANTS
 // =====================================
 
-const ANIMATION_GENRE = 16;
+const GENRES = {
+  ANIMATION: 16,
 
-const isAnimated = (item) => item.genre_ids?.includes(ANIMATION_GENRE);
+  SCI_FI: 878,
+  SCI_FI_FANTASY: 10765,
+
+  FANTASY: 14,
+  ADVENTURE: 12,
+
+  THRILLER: 53,
+  CRIME: 80,
+  MYSTERY: 9648,
+};
+
+// =====================================
+// 🎯 UNIVERSAL GENRE HELPER
+// =====================================
+
+const hasGenre = (item, genreId) => {
+  // TMDB genre_ids support
+  if (item.genre_ids?.includes(genreId)) {
+    return true;
+  }
+
+  // TMDB detailed genres support
+  if (item.genres?.some((genre) => genre.id === genreId)) {
+    return true;
+  }
+
+  return false;
+};
+
+// =====================================
+// 🎯 CONTENT HELPERS
+// =====================================
+
+const isAnimated = (item) => hasGenre(item, GENRES.ANIMATION);
 
 const isAnime = (item) => isAnimated(item) && item.original_language === "ja";
 
 const excludeAnime = (items) => items.filter((item) => !isAnime(item));
+
+// =====================================
+// 🚀 MULTI PAGE FETCH HELPER
+// =====================================
+
+const mergePages = async (fetcher, totalPages = 2) => {
+  const responses = await Promise.all(
+    Array.from({ length: totalPages }, (_, i) => fetcher(i + 1)),
+  );
+
+  return responses.flat();
+};
 
 // =====================================
 // 🔥 TRENDING WORLDWIDE
@@ -35,10 +81,7 @@ export const fetchTrendingMedia = async () => {
 // =====================================
 
 export const fetchTopRatedMedia = async () => {
-  const [movies, tv] = await Promise.all([
-    getTopRatedMovies(),
-    getTopRatedTV(),
-  ]);
+  const [movies, tv] = await Promise.all([getPopularMovies(), getPopularTV()]);
 
   return excludeAnime([...movies, ...tv])
     .sort((a, b) => b.vote_average - a.vote_average)
@@ -50,7 +93,7 @@ export const fetchTopRatedMedia = async () => {
 // =====================================
 
 export const fetchDiscoverMedia = async () => {
-  const [movies, tv] = await Promise.all([getLatestMovies(), getLatestTV()]);
+  const [movies, tv] = await Promise.all([getPopularMovies(), getPopularTV()]);
 
   return [...movies, ...tv]
     .sort(
@@ -66,55 +109,10 @@ export const fetchDiscoverMedia = async () => {
 // =====================================
 
 export const fetchAnimeMedia = async () => {
-  const tv = await getPopularTV();
+  const tv = await mergePages(getPopularTV);
 
   return tv
     .filter(isAnime)
-    .sort((a, b) => b.popularity - a.popularity)
-    .slice(0, 40);
-};
-
-// =====================================
-// 🎥 DARK & INTENSE
-// =====================================
-
-export const fetchDarkIntenseMedia = async () => {
-  const [movies, tv] = await Promise.all([
-    getTopRatedMovies(),
-    getTopRatedTV(),
-  ]);
-
-  return excludeAnime([...movies, ...tv])
-    .filter((item) =>
-      item.genre_ids?.some((id) =>
-        [
-          53, // Thriller
-          80, // Crime
-          9648, // Mystery
-        ].includes(id),
-      ),
-    )
-    .sort((a, b) => b.popularity - a.popularity)
-    .slice(0, 30);
-};
-
-// =====================================
-// 🚀 MIND-BENDING SCI-FI
-// =====================================
-
-export const fetchSciFiMedia = async () => {
-  const [movies, tv] = await Promise.all([getPopularMovies(), getPopularTV()]);
-
-  return excludeAnime([...movies, ...tv])
-    .filter((item) =>
-      item.genre_ids?.some((id) =>
-        [
-          878, // Sci-Fi
-          14, // Fantasy
-          12, // Adventure
-        ].includes(id),
-      ),
-    )
     .sort((a, b) => b.popularity - a.popularity)
     .slice(0, 40);
 };
@@ -124,10 +122,53 @@ export const fetchSciFiMedia = async () => {
 // =====================================
 
 export const fetchAnimatedMedia = async () => {
-  const [movies, tv] = await Promise.all([getPopularMovies(), getPopularTV()]);
+  const [movies, tv] = await Promise.all([
+    mergePages(getPopularMovies),
+    mergePages(getPopularTV),
+  ]);
 
   return [...movies, ...tv]
     .filter(isAnimated)
+    .sort((a, b) => b.popularity - a.popularity)
+    .slice(0, 40);
+};
+
+// =====================================
+// 🎥 DARK & INTENSE
+// =====================================
+
+export const fetchDarkIntenseMedia = async () => {
+  const [movies, tv] = await Promise.all([getPopularMovies(), getPopularTV()]);
+
+  return excludeAnime([...movies, ...tv])
+    .filter((item) =>
+      [GENRES.THRILLER, GENRES.CRIME, GENRES.MYSTERY].some((genreId) =>
+        hasGenre(item, genreId),
+      ),
+    )
+    .sort((a, b) => b.popularity - a.popularity)
+    .slice(0, 40);
+};
+
+// =====================================
+// 🚀 MIND-BENDING SCI-FI
+// =====================================
+
+export const fetchSciFiMedia = async () => {
+  const [movies, tv] = await Promise.all([
+    mergePages(getPopularMovies),
+    mergePages(getPopularTV),
+  ]);
+
+  return [...movies, ...tv]
+    .filter((item) =>
+      [
+        GENRES.SCI_FI,
+        GENRES.SCI_FI_FANTASY,
+        GENRES.FANTASY,
+        GENRES.ADVENTURE,
+      ].some((genreId) => hasGenre(item, genreId)),
+    )
     .sort((a, b) => b.popularity - a.popularity)
     .slice(0, 40);
 };
@@ -138,28 +179,12 @@ export const fetchAnimatedMedia = async () => {
 
 export const fetchHiddenGems = async () => {
   const [movies, tv] = await Promise.all([
-    getTopRatedMovies(),
-    getTopRatedTV(),
+    mergePages(getPopularMovies),
+    mergePages(getPopularTV),
   ]);
 
   return excludeAnime([...movies, ...tv])
     .filter((item) => item.vote_average >= 7.5 && item.popularity < 150)
     .sort((a, b) => b.vote_average - a.vote_average)
-    .slice(0, 30);
-};
-
-// =====================================
-// 🌟 FEATURED HERO MEDIA
-// =====================================
-
-export const fetchFeaturedHeroMedia = async () => {
-  const trending = await fetchTrendingMedia();
-
-  const filtered = trending.filter(
-    (item) => item.backdrop_path && item.vote_average >= 7,
-  );
-
-  const randomIndex = Math.floor(Math.random() * filtered.length);
-
-  return filtered[randomIndex];
+    .slice(0, 40);
 };

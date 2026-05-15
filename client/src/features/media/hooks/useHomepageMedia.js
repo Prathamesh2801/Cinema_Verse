@@ -34,10 +34,51 @@ export const useHomepageMedia = () => {
         );
 
         setSections(resolvedSections);
+        // =====================================
+        // 🎯 BUILD CINEMATIC HERO POOL
+        // =====================================
 
-        const heroCandidates = resolvedSections[0]?.items || [];
+        const heroCandidates = [
+          ...(resolvedSections
+            .find((s) => s.id === "trending")
+            ?.items.slice(0, 8) || []),
 
-        setHeroMediaList(heroCandidates);
+          ...(resolvedSections
+            .find((s) => s.id === "topRated")
+            ?.items.slice(0, 8) || []),
+
+          ...(resolvedSections
+            .find((s) => s.id === "scifi")
+            ?.items.slice(0, 8) || []),
+
+          ...(resolvedSections
+            .find((s) => s.id === "animated")
+            ?.items.slice(0, 6) || []),
+
+          ...(resolvedSections
+            .find((s) => s.id === "hidden")
+            ?.items.slice(0, 6) || []),
+        ];
+
+        // =====================================
+        // 🎯 REMOVE DUPLICATES
+        // =====================================
+
+        const uniqueMap = new Map();
+
+        heroCandidates.forEach((item) => {
+          uniqueMap.set(`${item.id}-${item.mediaType}`, item);
+        });
+
+        const uniqueHeroMedia = Array.from(uniqueMap.values());
+
+        // =====================================
+        // 🎯 SHUFFLE HEROES
+        // =====================================
+
+        const shuffledHeroes = uniqueHeroMedia.sort(() => Math.random() - 0.5);
+
+        setHeroMediaList(shuffledHeroes);
       } catch (err) {
         console.error("Homepage media load error:", err);
       } finally {

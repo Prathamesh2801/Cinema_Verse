@@ -211,9 +211,11 @@ export default function DetailPage() {
     setError(null);
 
     const fetchFn = isTV ? getTVDetails : getMovieDetails;
-
     fetchFn(id)
-      .then(setData)
+      .then((data) => {
+        setData(data);
+        console.log("Fetched media data:", data);
+      })
       .catch((err) => {
         console.error(err);
         setError("Could not load details. Please try again.");
