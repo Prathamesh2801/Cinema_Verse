@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { TrendingUp, Tv2 } from "lucide-react";
 import { getPopularTV, getTopRatedTV, getLatestTV } from "../tv.api";
-import MediaRow from "../../../components/MediaRow";
+import MediaRow from "../../../features/media/components/MediaRow";
 
 export default function TVPage() {
   const [popular, setPopular] = useState([]);

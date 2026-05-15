@@ -7,7 +7,7 @@ import {
   getLatestMovies,
   getTopRatedMovies,
 } from "../movie.api";
-import MediaRow from "../../../components/MediaRow";
+import MediaRow from "../../../features/media/components/MediaRow";
 
 export default function MoviePage() {
   const [popular, setPopular] = useState([]);

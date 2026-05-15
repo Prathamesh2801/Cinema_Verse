@@ -3,10 +3,73 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="CinemaVerse helps you discover trending movies and TV shows with reviews, bookmarks, and curated collections." />
+    <meta name="theme-color" content="#09090b" />
+    <meta property="og:title" content="CinemaVerse" />
+    <meta property="og:description" content="Discover trending movies and TV shows, read reviews, and save favorites with CinemaVerse." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/src/assets/img/logo.png" />
+    <link rel="preconnect" href="https://image.tmdb.org" />
+    <link rel="preconnect" href="https://api.themoviedb.org" />
     <title>Movie IMDB</title>
+    <style>
+      #initial-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #09090b;
+        color: #fff;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      #initial-splash-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 24px;
+        border: 1px solid rgba(238, 205, 129, 0.2);
+        border-radius: 22px;
+        background: rgba(15, 15, 18, 0.88);
+      }
+      #initial-splash-content span {
+        color: #EECD81;
+        letter-spacing: 0.24em;
+        font-weight: 700;
+      }
+      #initial-splash-loader {
+        width: 64px;
+        height: 64px;
+        border-radius: 9999px;
+        border: 4px solid rgba(238, 205, 129, 0.24);
+        border-top-color: #EECD81;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
   </head>
   <body>
+    <div id="initial-splash">
+      <div id="initial-splash-content">
+        <div id="initial-splash-loader"></div>
+        <span>LOADING CINEMAVERSE</span>
+      </div>
+    </div>
     <div id="root"></div>
+    <script>
+      window.addEventListener("load", () => {
+        const splash = document.getElementById("initial-splash");
+        if (splash) {
+          splash.style.transition = "opacity 240ms ease";
+          splash.style.opacity = "0";
+          setTimeout(() => splash.remove(), 260);
+        }
+      });
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

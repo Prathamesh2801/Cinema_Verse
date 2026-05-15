@@ -26,6 +26,8 @@ export default function MediaCard({
   const { bookmarks, toggle } = useBookmarks();
   const { user } = useAuth(); // null when logged out
 
+  console.log("Data : ", item);
+
   const title = item.title || item.name;
   const year = (item.release_date || item.first_air_date || "").slice(0, 4);
   const rating = item.vote_average?.toFixed(1);
@@ -215,7 +217,6 @@ export default function MediaCard({
       >
         {/* Poster image */}
         {hasPoster ? (
-          
           <img
             src={getImageUrl(item.poster, IMAGE_SIZES.small)}
             alt={title}

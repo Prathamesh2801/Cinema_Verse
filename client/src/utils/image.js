@@ -5,6 +5,7 @@ export const IMAGE_SIZES = {
   small: "w342",
   medium: "w500",
   large: "w780",
+  xlarge: "w1280",
   full: "original",
 };
 export const getImageUrl = (path, size = IMAGE_SIZES.medium) => {

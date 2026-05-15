@@ -78,12 +78,25 @@ export default function Hero({ media }) {
       <AnimatePresence mode="sync">
         <motion.img
           key={media.id ?? media.title}
-          src={getImageUrl(media.backdrop, IMAGE_SIZES.full)}
+          src={getImageUrl(media.backdrop, IMAGE_SIZES.xlarge)}
           alt={media.title}
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.97 }}
-          transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
+          width={1920}
+          height={1080}
+          decoding="async"
+          initial={{ opacity: 0, scale: 1.04 }}
+          animate={{
+            opacity: 1,
+            scale: [1.04, 1.08, 1.04],
+            x: [0, -12, 0],
+            y: [0, -8, 0],
+          }}
+          exit={{ opacity: 0, scale: 0.96 }}
+          transition={{
+            opacity: { duration: 0.9, ease: [0.25, 0.1, 0.25, 1] },
+            scale: { duration: 24, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" },
+            x: { duration: 24, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" },
+            y: { duration: 24, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" },
+          }}
           style={{
             position: "absolute",
             inset: 0,

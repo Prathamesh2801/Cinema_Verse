@@ -1,11 +1,82 @@
+import { Suspense, lazy } from "react";
 import { motion } from "framer-motion";
 
 import Hero from "../../media/components/Hero";
-import MediaRow from "../../media/components/MediaRow";
 import { useHomepageMedia } from "../../media/hooks/useHomepageMedia";
+
+const MediaRow = lazy(() => import("../../media/components/MediaRow"));
 
 // matches Tailwind max-w-7xl = 1280px — keep in sync with Hero.jsx
 const CONTENT_MAX_W = 1280;
+
+function HeroSkeleton() {
+  return (
+    <section
+      style={{
+        position: "relative",
+        height: "clamp(420px, 58vh, 660px)",
+        overflow: "hidden",
+      }}
+    >
+      <motion.div
+        animate={{ opacity: [0.26, 0.65, 0.26] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(155deg, #18181b 0%, #101012 40%, #09090b 100%)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 2,
+          display: "flex",
+          alignItems: "flex-end",
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            maxWidth: CONTENT_MAX_W,
+            margin: "0 auto",
+            padding: "0 clamp(16px, 3.5vw, 40px)",
+            paddingBottom: "clamp(28px, 4.5vh, 48px)",
+          }}
+        >
+          <div
+            style={{
+              width: "clamp(180px, 24vw, 360px)",
+              height: 32,
+              borderRadius: "var(--radius-lg)",
+              background: "var(--color-bg-elevated)",
+              marginBottom: 16,
+            }}
+          />
+          <div
+            style={{
+              width: "clamp(280px, 42vw, 520px)",
+              height: 22,
+              borderRadius: "var(--radius-lg)",
+              background: "var(--color-bg-elevated)",
+              marginBottom: 10,
+            }}
+          />
+          <div
+            style={{
+              width: "clamp(140px, 20vw, 260px)",
+              height: 14,
+              borderRadius: "999px",
+              background: "var(--color-bg-elevated)",
+            }}
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
 
 // ─── Skeleton shimmer card ───────────────────────────────────────────────────
 function SkeletonCard({ delay = 0 }) {
@@ -28,7 +99,6 @@ function SkeletonCard({ delay = 0 }) {
 function SkeletonRow({ rowIndex }) {
   return (
     <div style={{ marginBottom: "clamp(28px, 4vw, 44px)" }}>
-      {/* Row title bar */}
       <motion.div
         animate={{ opacity: [0.28, 0.55, 0.28] }}
         transition={{
@@ -45,7 +115,6 @@ function SkeletonRow({ rowIndex }) {
           background: "var(--color-bg-elevated)",
         }}
       />
-      {/* Cards strip */}
       <div
         style={{
           display: "flex",
@@ -61,54 +130,17 @@ function SkeletonRow({ rowIndex }) {
   );
 }
 
-// ─── Loading state ────────────────────────────────────────────────────────────
-function LoadingState() {
-  return (
-    <div
-      style={{
-        minHeight: "100svh",
-        background: "var(--color-bg)",
-        overflowX: "hidden",
-      }}
-    >
-      {/* Hero skeleton */}
-      <motion.div
-        animate={{ opacity: [0.32, 0.55, 0.32] }}
-        transition={{ duration: 1.9, repeat: Infinity, ease: "easeInOut" }}
-        style={{
-          height: "clamp(420px, 58vh, 660px)",
-          background:
-            "linear-gradient(155deg, #18181b 0%, #101012 55%, #09090b 100%)",
-        }}
-      />
-
-      {/* Row skeletons — constrained to max-w-7xl */}
-      <div
-        style={{
-          maxWidth: CONTENT_MAX_W,
-          margin: "0 auto",
-          padding: "clamp(24px, 3.5vw, 36px) clamp(16px, 3.5vw, 40px) 0",
-        }}
-      >
-        {[0, 1, 2].map((i) => (
-          <SkeletonRow key={i} rowIndex={i} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function HomePage() {
-  const { sections, featuredMedia, loading } = useHomepageMedia();
+  const { heroMedia, heroLoading, sections } = useHomepageMedia();
 
-  if (loading) return <LoadingState />;
+  const showHeroSkeleton = heroLoading || !heroMedia;
 
   return (
     <motion.main
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
       style={{
         background: "var(--color-bg)",
         minHeight: "100svh",
@@ -116,16 +148,13 @@ export default function HomePage() {
         paddingBottom: "clamp(56px, 9vh, 88px)",
       }}
     >
-      {/* ── HERO — full-bleed, image goes edge to edge ─────────── */}
-      <Hero media={featuredMedia} />
+      {showHeroSkeleton ? <HeroSkeleton /> : <Hero media={heroMedia} />}
 
-      {/* ── DISCOVERY ROWS — constrained to max-w-7xl ──────────── */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.18 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.12 }}
         style={{
-          // Slight overlap so rows feel connected to the hero bottom fade
           marginTop: "clamp(-36px, -4vh, -18px)",
           position: "relative",
           zIndex: 5,
@@ -135,18 +164,15 @@ export default function HomePage() {
         }}
       >
         {sections.map((section, i) => (
-          <motion.div
-            key={section.id}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: 0.42,
-              ease: [0.22, 1, 0.36, 1],
-              delay: 0.24 + i * 0.07,
-            }}
-          >
-            <MediaRow title={section.title} data={section.items} />
-          </motion.div>
+          <div key={section.id} style={{ marginBottom: 24 }}>
+            {section.items.length > 0 ? (
+              <Suspense fallback={<SkeletonRow rowIndex={i} />}>
+                <MediaRow title={section.title} data={section.items} />
+              </Suspense>
+            ) : (
+              <SkeletonRow rowIndex={i} />
+            )}
+          </div>
         ))}
       </motion.div>
     </motion.main>

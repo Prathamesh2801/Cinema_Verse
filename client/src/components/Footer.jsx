@@ -34,6 +34,8 @@ export default function Footer() {
               <img
                 src={Logo}
                 alt="CinemaVerse"
+                width={120}
+                height={48}
                 style={{ height: 60, width: "auto", objectFit: "contain" }}
               />
               <span
