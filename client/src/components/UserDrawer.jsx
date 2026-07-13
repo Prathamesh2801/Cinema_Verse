@@ -3,16 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, User, Bookmark, LogOut, ChevronRight, Shield } from "lucide-react";
 import { useAuth } from "../features/auth/context/AuthContext";
-
-/* ── helpers ── */
-function getInitials(name = "") {
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
+import Avatar from "../features/auth/components/Avatar";
 
 function NavRow({ icon: Icon, label, to, onClick, danger = false }) {
   const location = useLocation();
@@ -264,35 +255,10 @@ export default function UserDrawer({ open, onClose }) {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                {/* Avatar circle */}
-                <div
-                  style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: "var(--radius-full)",
-                    background:
-                      "linear-gradient(135deg, var(--color-gold-dim), var(--color-royal-bright))",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                    border: "2px solid var(--color-gold-border)",
-                    boxShadow: "0 0 20px var(--color-gold-glow)",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 18,
-                      fontWeight: 800,
-                      color: "var(--color-bg)",
-                      lineHeight: 1,
-                    }}
-                  >
-                    {getInitials(user?.username || user?.name || "U")}
-                  </span>
-                </div>
+                {/* Avatar */}
+                <Avatar user={user} size={52} fontSize={18} />
 
-                {/* Name + email */}
+                {/* Name + handle */}
                 <div style={{ minWidth: 0 }}>
                   <p
                     style={{
@@ -305,9 +271,9 @@ export default function UserDrawer({ open, onClose }) {
                       textOverflow: "ellipsis",
                     }}
                   >
-                    {user?.username || user?.name || "User"}
+                    {user?.fullName || user?.username || "User"}
                   </p>
-                  {user?.email && (
+                  {user?.fullName && user?.username && (
                     <p
                       style={{
                         fontSize: 12,
@@ -318,7 +284,7 @@ export default function UserDrawer({ open, onClose }) {
                         textOverflow: "ellipsis",
                       }}
                     >
-                      {user.email}
+                      @{user.username}
                     </p>
                   )}
                   {/* Member badge */}

@@ -1,5 +1,16 @@
-import { registerUserService, loginUserService } from "./auth.service.js";
-import { validateLogin, validateRegister } from "./auth.validation.js";
+import {
+  registerUserService,
+  loginUserService,
+  getMeService,
+  updateProfileService,
+  changePasswordService,
+} from "./auth.service.js";
+import {
+  validateLogin,
+  validateRegister,
+  validateProfileUpdate,
+  validatePasswordChange,
+} from "./auth.validation.js";
 
 export async function register(req, res) {
   try {
@@ -20,5 +31,36 @@ export async function login(req, res) {
     res.json({ token, user });
   } catch (err) {
     res.status(401).json({ message: err.message });
+  }
+}
+
+export async function getMe(req, res) {
+  try {
+    const user = await getMeService(req.user.id);
+    res.json({ user });
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
+}
+
+export async function updateProfile(req, res) {
+  try {
+    validateProfileUpdate(req.body);
+    const { token, user } = await updateProfileService(req.user.id, req.body);
+
+    res.json({ token, user });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+export async function changePassword(req, res) {
+  try {
+    validatePasswordChange(req.body);
+    const result = await changePasswordService(req.user.id, req.body);
+
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 }

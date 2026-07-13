@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { UserPlus, Mail, Lock, User } from "lucide-react";
+import { UserPlus, Lock, User } from "lucide-react";
 import { registerUser } from "../auth.api";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ import Logo from "../../../assets/img/logo.png";
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
+    fullName: "",
     username: "",
     password: "",
   });
@@ -151,6 +152,62 @@ export default function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit}>
+          {/* Full name (optional) */}
+          <div style={{ marginBottom: 20 }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: 12,
+                fontWeight: 600,
+                color: "var(--color-text-muted)",
+                marginBottom: 8,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              Full name <span style={{ textTransform: "none", fontWeight: 400 }}>(optional)</span>
+            </label>
+            <div style={{ position: "relative" }}>
+              <User
+                className="w-4 h-4"
+                style={{
+                  position: "absolute",
+                  left: 14,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "var(--color-text-muted)",
+                }}
+              />
+              <input
+                name="fullName"
+                type="text"
+                value={form.fullName}
+                onChange={handleChange}
+                maxLength={60}
+                placeholder="Your full name"
+                style={{
+                  width: "100%",
+                  padding: "14px 14px 14px 44px",
+                  background: "var(--color-bg-overlay)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "var(--radius-md)",
+                  color: "var(--color-text-primary)",
+                  fontSize: 14,
+                  outline: "none",
+                  transition: "border-color 0.2s, box-shadow 0.2s",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "var(--color-gold-border)";
+                  e.target.style.boxShadow = "0 0 0 3px var(--color-gold-glow)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--color-border)";
+                  e.target.style.boxShadow = "none";
+                }}
+              />
+            </div>
+          </div>
+
           {/* Username */}
           <div style={{ marginBottom: 20 }}>
             <label

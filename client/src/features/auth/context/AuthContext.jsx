@@ -34,8 +34,23 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("user");
   };
 
+  // Update the stored auth after a profile edit. Accepts a fresh token
+  // (username changes reissue one) and/or an updated user object.
+  const updateAuth = ({ token: newToken, user: newUser } = {}) => {
+    if (newToken) {
+      setToken(newToken);
+      localStorage.setItem("token", newToken);
+    }
+    if (newUser) {
+      setUser(newUser);
+      localStorage.setItem("user", JSON.stringify(newUser));
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{ user, token, login, logout, updateAuth, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

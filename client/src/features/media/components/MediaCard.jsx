@@ -15,26 +15,38 @@ import toast from "react-hot-toast";
  *   mediaType     — "movie" | "tv"  explicit override when item.media_type is absent
  *   showRemove    — boolean  when true shows a full "Remove" button instead of the
  *                   bookmark toggle (used in BookmarkPage)
+ *   fluid         — boolean  when true the card fills its container (grid cell)
+ *                   instead of the fixed 130px used in horizontal rows
+ *
+ * Field reads are normalized-first with a raw-TMDB fallback, so the card works
+ * with both normalizeMedia() output (poster/rating/year) and raw items
+ * (poster_path/vote_average/release_date).
  */
 export default function MediaCard({
   item,
   index = 0,
   mediaType,
   showRemove = false,
+  fluid = false,
 }) {
   const navigate = useNavigate();
   const { bookmarks, toggle } = useBookmarks();
   const { user } = useAuth(); // null when logged out
 
-  console.log("Data : ", item);
-
   const title = item.title || item.name;
-  const year = (item.release_date || item.first_air_date || "").slice(0, 4);
-  const rating = item.vote_average?.toFixed(1);
-  const hasPoster = !!item.poster;
+  const poster = item.poster || item.poster_path;
+  const year =
+    item.year || (item.release_date || item.first_air_date || "").slice(0, 4);
+  const ratingValue = item.rating ?? item.vote_average;
+  const rating =
+    ratingValue != null ? Number(ratingValue).toFixed(1) : undefined;
+  const hasPoster = !!poster;
 
   const resolvedType =
-    mediaType || item.media_type || (item.title ? "movie" : "tv");
+    mediaType ||
+    item.mediaType ||
+    item.media_type ||
+    (item.title ? "movie" : "tv");
 
   const isTV = resolvedType === "tv";
 
@@ -192,8 +204,12 @@ export default function MediaCard({
         ease: [0.25, 0.46, 0.45, 0.94],
       }}
       whileHover={{ y: -6, transition: { duration: 0.22 } }}
-      className="group relative flex-shrink-0 cursor-pointer"
-      style={{ minWidth: 130, width: 130 }}
+      className="group relative cursor-pointer"
+      style={
+        fluid
+          ? { width: "100%" }
+          : { minWidth: 130, width: 130, flexShrink: 0 }
+      }
     >
       {/* ── Poster ── */}
       <div
@@ -218,7 +234,7 @@ export default function MediaCard({
         {/* Poster image */}
         {hasPoster ? (
           <img
-            src={getImageUrl(item.poster, IMAGE_SIZES.small)}
+            src={getImageUrl(poster, IMAGE_SIZES.small)}
             alt={title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"

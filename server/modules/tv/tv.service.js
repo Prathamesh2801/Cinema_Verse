@@ -66,6 +66,28 @@ export async function getAiringTodayTV(page = 1) {
 }
 
 // ======================================
+// 🧭 DISCOVER TV (filterable browse)
+// ======================================
+
+export async function discoverTV(params = {}, moderationConfig = {}) {
+  const res = await tmdbClient.get("/discover/tv", {
+    params,
+  });
+
+  const filteredResults = filterMediaContent(res.data.results, {
+    minVoteCount: 300,
+    minVoteAverage: 6.2,
+    requirePoster: true,
+    ...moderationConfig,
+  });
+
+  return {
+    ...res.data,
+    results: filteredResults,
+  };
+}
+
+// ======================================
 // 📺 TV DETAILS
 // ======================================
 

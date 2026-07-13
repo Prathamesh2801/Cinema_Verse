@@ -1,30 +1,14 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Film,
-  Tv2,
-  Home,
-  Search,
-  X,
-  UserPlus,
-  LogIn,
-  Bookmark,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { Film, Tv2, Home, Search, UserPlus, LogIn } from "lucide-react";
 import Logo from "../assets/img/logo.png";
-import SearchBar from "./SearchBar";
 import UserDrawer from "./UserDrawer";
 import { useAuth } from "../features/auth/context/AuthContext";
+import Avatar from "../features/auth/components/Avatar";
 
 /* ── Reusable avatar button — same look on desktop + mobile ── */
 function AvatarButton({ user, onClick }) {
-  const initials = (user?.username || user?.name || "U")
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-
   return (
     <motion.button
       whileHover={{ scale: 1.06 }}
@@ -32,46 +16,35 @@ function AvatarButton({ user, onClick }) {
       onClick={onClick}
       title="Open account menu"
       style={{
-        width: 36,
-        height: 36,
         borderRadius: "var(--radius-full)",
-        background:
-          "linear-gradient(135deg, var(--color-gold-dim), var(--color-royal-bright))",
-        border: "2px solid var(--color-gold-border)",
-        boxShadow: "0 0 12px var(--color-gold-glow)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        background: "none",
+        border: "none",
+        padding: 0,
         cursor: "pointer",
         flexShrink: 0,
+        display: "flex",
       }}
     >
-      <span
-        style={{
-          fontSize: 12,
-          fontWeight: 800,
-          color: "var(--color-bg)",
-          lineHeight: 1,
-          userSelect: "none",
-        }}
-      >
-        {initials}
-      </span>
+      <Avatar user={user} size={36} fontSize={12} />
     </motion.button>
   );
 }
 
 export default function Header() {
-  const [searchOpen, setSearchOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, loading } = useAuth();
+
+  const searchActive = location.pathname === "/search";
 
   const navLinks = [
     { to: "/", label: "Home", icon: Home },
     { to: "/movies", label: "Movies", icon: Film },
     { to: "/tv", label: "Shows", icon: Tv2 },
   ];
+
+  const bottomNavLinks = [...navLinks, { to: "/search", label: "Search", icon: Search }];
 
   /* shared auth button base */
   const authBase = {
@@ -149,25 +122,26 @@ export default function Header() {
 
           {/* Right cluster */}
           <div className="flex items-center gap-3 flex-shrink-0">
-            {/* Search toggle */}
+            {/* Search — routes to dedicated page */}
             <button
-              onClick={() => setSearchOpen((v) => !v)}
+              onClick={() => navigate("/search")}
+              title="Search"
               className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200"
               style={{
-                background: searchOpen
+                background: searchActive
                   ? "var(--color-gold-glow)"
                   : "var(--color-bg-elevated)",
-                border: `1px solid ${searchOpen ? "var(--color-gold-border)" : "var(--color-border)"}`,
+                border: `1px solid ${searchActive ? "var(--color-gold-border)" : "var(--color-border)"}`,
               }}
             >
-              {searchOpen ? (
-                <X className="w-4 h-4" style={{ color: "var(--color-gold)" }} />
-              ) : (
-                <Search
-                  className="w-4 h-4"
-                  style={{ color: "var(--color-text-muted)" }}
-                />
-              )}
+              <Search
+                className="w-4 h-4"
+                style={{
+                  color: searchActive
+                    ? "var(--color-gold)"
+                    : "var(--color-text-muted)",
+                }}
+              />
             </button>
 
             {/* ── Logged OUT — Login + Register ── */}
@@ -232,29 +206,6 @@ export default function Header() {
             )}
           </div>
         </div>
-
-        {/* Expandable search strip */}
-        <AnimatePresence>
-          {searchOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              style={{
-                overflow: "visible",
-                background: "rgba(9,9,11,0.98)",
-                borderBottom: "1px solid var(--color-border)",
-                position: "relative",
-                zIndex: 200,
-              }}
-            >
-              <div className="max-w-2xl mx-auto px-6 py-3">
-                <SearchBar autoFocus onClose={() => setSearchOpen(false)} />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </header>
 
       {/* ════════════════════════════════════════
@@ -304,17 +255,18 @@ export default function Header() {
           {/* Spacer */}
           <div style={{ flex: 1 }} />
 
-          {/* Search icon */}
+          {/* Search icon — routes to dedicated page */}
           <button
-            onClick={() => setSearchOpen((v) => !v)}
+            onClick={() => navigate("/search")}
+            title="Search"
             style={{
               width: 34,
               height: 34,
               borderRadius: "var(--radius-full)",
-              background: searchOpen
+              background: searchActive
                 ? "var(--color-gold-glow)"
                 : "var(--color-bg-elevated)",
-              border: `1px solid ${searchOpen ? "var(--color-gold-border)" : "var(--color-border)"}`,
+              border: `1px solid ${searchActive ? "var(--color-gold-border)" : "var(--color-border)"}`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -322,14 +274,14 @@ export default function Header() {
               flexShrink: 0,
             }}
           >
-            {searchOpen ? (
-              <X className="w-4 h-4" style={{ color: "var(--color-gold)" }} />
-            ) : (
-              <Search
-                className="w-4 h-4"
-                style={{ color: "var(--color-text-muted)" }}
-              />
-            )}
+            <Search
+              className="w-4 h-4"
+              style={{
+                color: searchActive
+                  ? "var(--color-gold)"
+                  : "var(--color-text-muted)",
+              }}
+            />
           </button>
 
           {/* ── Logged OUT: Login + Register as compact icon-buttons ── */}
@@ -390,29 +342,6 @@ export default function Header() {
             <AvatarButton user={user} onClick={() => setDrawerOpen(true)} />
           )}
         </div>
-
-        {/* Mobile search strip */}
-        <AnimatePresence>
-          {searchOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              style={{
-                overflow: "visible",
-                background: "var(--color-bg)",
-                borderBottom: "1px solid var(--color-border)",
-                position: "relative",
-                zIndex: 200,
-              }}
-            >
-              <div style={{ padding: "10px 14px" }}>
-                <SearchBar autoFocus onClose={() => setSearchOpen(false)} />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </header>
 
       {/* ════════════════════════════════════════
@@ -427,7 +356,7 @@ export default function Header() {
         }}
       >
         <div className="flex items-center justify-around h-16">
-          {navLinks.map(({ to, label, icon: Icon }) => {
+          {bottomNavLinks.map(({ to, label, icon: Icon }) => {
             const active = location.pathname === to;
             return (
               <Link
