@@ -22,12 +22,19 @@ import toast from "react-hot-toast";
  * with both normalizeMedia() output (poster/rating/year) and raw items
  * (poster_path/vote_average/release_date).
  */
+const STATUS_BADGE = {
+  want: { label: "Watchlist", color: "var(--color-gold)" },
+  watching: { label: "Watching", color: "var(--color-royal-bright)" },
+  watched: { label: "Watched", color: "#4ade80" },
+};
+
 export default function MediaCard({
   item,
   index = 0,
   mediaType,
   showRemove = false,
   fluid = false,
+  statusBadge = null,
 }) {
   const navigate = useNavigate();
   const { bookmarks, toggle } = useBookmarks();
@@ -47,8 +54,6 @@ export default function MediaCard({
     item.mediaType ||
     item.media_type ||
     (item.title ? "movie" : "tv");
-
-  const isTV = resolvedType === "tv";
 
   const isBookmarked = bookmarks.some(
     (b) => b.mediaId === item.id && b.mediaType === resolvedType,
@@ -103,26 +108,12 @@ export default function MediaCard({
     if (showRemove) {
       return (
         <motion.button
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileTap={{ scale: 0.93 }}
+          whileTap={{ scale: 0.86 }}
           onClick={handleBookmark}
-          title="Remove bookmark"
-          className="bookmark-remove-btn"
+          title="Remove from library"
+          className="lib-remove-btn"
         >
-          <Trash2
-            style={{ width: 11, height: 11, color: "#fff", flexShrink: 0 }}
-          />
-          <span
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              color: "#fff",
-              letterSpacing: "0.06em",
-            }}
-          >
-            Remove
-          </span>
+          <Trash2 style={{ width: 13, height: 13 }} />
         </motion.button>
       );
     }
@@ -248,6 +239,46 @@ export default function MediaCard({
           </div>
         )}
 
+        {/* Library status badge (top-left) */}
+        {statusBadge && STATUS_BADGE[statusBadge] && (
+          <div
+            style={{
+              position: "absolute",
+              top: 6,
+              left: 6,
+              zIndex: 2,
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              background: "rgba(9,9,11,0.82)",
+              backdropFilter: "blur(6px)",
+              borderRadius: "var(--radius-sm)",
+              padding: "2px 7px",
+              border: `1px solid ${STATUS_BADGE[statusBadge].color}55`,
+            }}
+          >
+            <span
+              style={{
+                width: 5,
+                height: 5,
+                borderRadius: "50%",
+                background: STATUS_BADGE[statusBadge].color,
+              }}
+            />
+            <span
+              style={{
+                fontSize: 8.5,
+                fontWeight: 800,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: STATUS_BADGE[statusBadge].color,
+              }}
+            >
+              {STATUS_BADGE[statusBadge].label}
+            </span>
+          </div>
+        )}
+
         {/* Hover gradient */}
         <div
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -290,8 +321,8 @@ export default function MediaCard({
         {/* Bookmark / Remove action */}
         <ActionButton />
 
-        {/* Star rating — top-right */}
-        {rating && parseFloat(rating) > 0 && (
+        {/* Star rating — top-right (hidden in library mode; the remove icon lives there) */}
+        {!showRemove && rating && parseFloat(rating) > 0 && (
           <div
             className="absolute top-2 right-2 flex items-center gap-1"
             style={{
@@ -351,27 +382,36 @@ export default function MediaCard({
 
       {/* Scoped styles */}
       <style>{`
-        .bookmark-remove-btn {
+        .lib-remove-btn {
           position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
+          top: 6px;
+          right: 6px;
+          width: 26px;
+          height: 26px;
+          border-radius: var(--radius-full);
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 5px;
-          padding: 9px 6px;
-          background: rgba(239, 68, 68, 0.82);
+          background: rgba(9, 9, 11, 0.6);
           backdrop-filter: blur(6px);
-          border: none;
-          border-top: 1px solid rgba(239,68,68,0.4);
+          border: 1px solid var(--color-border);
+          color: var(--color-text-muted);
           cursor: pointer;
-          font-family: inherit;
-          transition: background 0.2s;
-          border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+          z-index: 3;
+          opacity: 0;
+          transform: scale(0.9);
+          transition: opacity 0.18s, transform 0.18s, background 0.18s,
+            border-color 0.18s, color 0.18s;
         }
-        .bookmark-remove-btn:hover {
-          background: rgba(220, 38, 38, 0.96);
+        /* Reveal on card hover; keep it visible on touch (no hover) devices */
+        .group:hover .lib-remove-btn { opacity: 1; transform: scale(1); }
+        @media (hover: none) {
+          .lib-remove-btn { opacity: 0.9; transform: scale(1); }
+        }
+        .lib-remove-btn:hover {
+          background: rgba(239, 68, 68, 0.92);
+          border-color: rgba(239, 68, 68, 0.92);
+          color: #fff;
         }
       `}</style>
     </motion.div>

@@ -343,8 +343,8 @@ export default function UserDrawer({ open, onClose }) {
               />
               <NavRow
                 icon={Bookmark}
-                label="Bookmarks"
-                to="/bookmarks"
+                label="My Library"
+                to="/library"
                 onClick={onClose}
               />
             </div>

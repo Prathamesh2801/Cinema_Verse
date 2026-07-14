@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { User, AtSign, Image as ImageIcon, Lock, Save, KeyRound } from "lucide-react";
+import { User, AtSign, Lock, Save, KeyRound, Camera, Trash2 } from "lucide-react";
 
 import { useAuth } from "../context/AuthContext";
-import { updateProfile, changePassword } from "../auth.api";
+import { updateProfile, changePassword, removeAvatar } from "../auth.api";
 import Avatar from "../components/Avatar";
+import AvatarUploadModal from "../components/AvatarUploadModal";
 
 /* ── Shared field ── */
 function Field({ icon: Icon, label, hint, ...inputProps }) {
@@ -131,11 +132,10 @@ function SubmitButton({ loading, icon: Icon, children }) {
 export default function ProfilePage() {
   const { user, token, updateAuth } = useAuth();
 
-  // ── Profile details form ──
+  // ── Profile details form (name + username only; photo is managed separately) ──
   const [details, setDetails] = useState({
     fullName: user?.fullName || "",
     username: user?.username || "",
-    avatar: user?.avatar || "",
   });
   const [savingDetails, setSavingDetails] = useState(false);
 
@@ -147,12 +147,31 @@ export default function ProfilePage() {
   });
   const [savingPw, setSavingPw] = useState(false);
 
+  // ── Avatar modal / removal ──
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
+  const [removingAvatar, setRemovingAvatar] = useState(false);
+
   const detailsDirty =
     details.fullName !== (user?.fullName || "") ||
-    details.username !== (user?.username || "") ||
-    details.avatar !== (user?.avatar || "");
+    details.username !== (user?.username || "");
 
+  // avatar always comes from the live `user` (so uploads/removals reflect instantly);
+  // only name/username are locally edited.
   const previewUser = { ...user, ...details };
+
+  const handleRemoveAvatar = async () => {
+    if (!user?.avatar || removingAvatar) return;
+    setRemovingAvatar(true);
+    try {
+      const { user: updated } = await removeAvatar(token);
+      updateAuth({ user: updated });
+      toast.success("Profile photo removed");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Could not remove photo");
+    } finally {
+      setRemovingAvatar(false);
+    }
+  };
 
   const handleDetailsSubmit = async (e) => {
     e.preventDefault();
@@ -163,7 +182,6 @@ export default function ProfilePage() {
         {
           fullName: details.fullName,
           username: details.username,
-          avatar: details.avatar,
         },
         token,
       );
@@ -208,7 +226,7 @@ export default function ProfilePage() {
         padding: "28px 16px 90px",
       }}
     >
-      {/* ── Header with live avatar preview ── */}
+      {/* ── Header with avatar + change-photo ── */}
       <div
         style={{
           display: "flex",
@@ -217,7 +235,40 @@ export default function ProfilePage() {
           marginBottom: 24,
         }}
       >
-        <Avatar user={previewUser} size={64} />
+        {/* Avatar with camera overlay button */}
+        <button
+          onClick={() => setAvatarModalOpen(true)}
+          title="Change profile photo"
+          style={{
+            position: "relative",
+            padding: 0,
+            border: "none",
+            background: "none",
+            cursor: "pointer",
+            borderRadius: "var(--radius-full)",
+            flexShrink: 0,
+          }}
+        >
+          <Avatar user={previewUser} size={64} />
+          <span
+            style={{
+              position: "absolute",
+              right: -2,
+              bottom: -2,
+              width: 24,
+              height: 24,
+              borderRadius: "var(--radius-full)",
+              background: "var(--color-gold)",
+              border: "2px solid var(--color-bg)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Camera style={{ width: 12, height: 12, color: "var(--color-bg)" }} />
+          </span>
+        </button>
+
         <div style={{ minWidth: 0 }}>
           <h1
             style={{
@@ -233,6 +284,52 @@ export default function ProfilePage() {
           <p style={{ fontSize: 13, color: "var(--color-text-muted)", margin: "3px 0 0" }}>
             @{details.username || user?.username}
           </p>
+          <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+            <button
+              onClick={() => setAvatarModalOpen(true)}
+              style={{
+                padding: "5px 12px",
+                borderRadius: "var(--radius-full)",
+                background: "var(--color-gold-glow)",
+                border: "1px solid var(--color-gold-border)",
+                color: "var(--color-gold)",
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: "pointer",
+                fontFamily: "inherit",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <Camera style={{ width: 12, height: 12 }} />
+              {user?.avatar ? "Change photo" : "Add photo"}
+            </button>
+
+            {user?.avatar && (
+              <button
+                onClick={handleRemoveAvatar}
+                disabled={removingAvatar}
+                style={{
+                  padding: "5px 12px",
+                  borderRadius: "var(--radius-full)",
+                  background: "transparent",
+                  border: "1px solid var(--color-border)",
+                  color: "var(--color-text-muted)",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: removingAvatar ? "not-allowed" : "pointer",
+                  fontFamily: "inherit",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                }}
+              >
+                <Trash2 style={{ width: 12, height: 12 }} />
+                {removingAvatar ? "Removing…" : "Remove"}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -258,16 +355,6 @@ export default function ProfilePage() {
             value={details.username}
             onChange={(e) => setDetails({ ...details, username: e.target.value })}
             hint="At least 3 characters. Must be unique."
-          />
-          <Field
-            icon={ImageIcon}
-            label="Avatar image URL"
-            name="avatar"
-            type="url"
-            placeholder="https://example.com/photo.jpg"
-            value={details.avatar}
-            onChange={(e) => setDetails({ ...details, avatar: e.target.value })}
-            hint="Paste a link to an image. Leave empty to use your initials."
           />
           <SubmitButton loading={savingDetails} icon={Save}>
             {savingDetails ? "Saving…" : "Save changes"}
@@ -310,6 +397,11 @@ export default function ProfilePage() {
           </SubmitButton>
         </form>
       </Card>
+
+      <AvatarUploadModal
+        open={avatarModalOpen}
+        onClose={() => setAvatarModalOpen(false)}
+      />
     </motion.main>
   );
 }

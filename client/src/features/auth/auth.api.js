@@ -26,6 +26,25 @@ export const updateProfile = async (data, token) => {
   return res.data;
 };
 
+// 🔹 Upload avatar image (multipart) → { user }
+export const uploadAvatar = async (file, token, onUploadProgress) => {
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  // Let the browser set the multipart boundary — don't set Content-Type manually.
+  const res = await api.post("/auth/avatar", formData, {
+    headers: { Authorization: `Bearer ${token}` },
+    onUploadProgress,
+  });
+  return res.data;
+};
+
+// 🔹 Remove avatar (back to initials) → { user }
+export const removeAvatar = async (token) => {
+  const res = await api.delete("/auth/avatar", authHeader(token));
+  return res.data;
+};
+
 // 🔹 Change password → { message }
 export const changePassword = async (data, token) => {
   const res = await api.put("/auth/password", data, authHeader(token));

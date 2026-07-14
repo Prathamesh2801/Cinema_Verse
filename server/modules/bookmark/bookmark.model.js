@@ -16,6 +16,25 @@ const bookmarkSchema = new mongoose.Schema(
       enum: ["movie", "tv"],
       required: true,
     },
+    status: {
+      type: String,
+      enum: ["want", "watching", "watched"],
+      default: "want",
+    },
+    rating: {
+      type: Number,
+      min: 0,
+      max: 5,
+      default: 0,
+    },
+    note: {
+      type: String,
+      default: "",
+    },
+    watchedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true },
 );

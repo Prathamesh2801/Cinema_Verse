@@ -32,6 +32,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "/library",
+        element: (
+          <ProtectedRoute>
+            <BookmarkPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: "/profile",
         element: (
           <ProtectedRoute>

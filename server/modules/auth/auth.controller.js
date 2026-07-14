@@ -3,6 +3,8 @@ import {
   loginUserService,
   getMeService,
   updateProfileService,
+  updateAvatarService,
+  removeAvatarService,
   changePasswordService,
 } from "./auth.service.js";
 import {
@@ -49,6 +51,24 @@ export async function updateProfile(req, res) {
     const { token, user } = await updateProfileService(req.user.id, req.body);
 
     res.json({ token, user });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+export async function updateAvatar(req, res) {
+  try {
+    const user = await updateAvatarService(req.user.id, req.file);
+    res.json({ user });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+export async function removeAvatar(req, res) {
+  try {
+    const user = await removeAvatarService(req.user.id);
+    res.json({ user });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

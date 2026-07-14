@@ -1,14 +1,8 @@
-import { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
-import {
-  ArrowLeft,
-  ExternalLink,
-  Bookmark,
-  BookmarkCheck,
-  LogIn,
-} from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 
 import { getMovieDetails } from "../../../features/movies/movie.api";
 import { getTVDetails } from "../../../features/tv/tv.api";
@@ -19,8 +13,7 @@ import DetailOverview from "../components/DetailOverview";
 import DetailProduction from "../components/DetailProduction";
 import DetailSeasons from "../components/DetailSeasons";
 import DetailLastEpisode from "../components/DetailLastEpisode";
-import { useBookmarks } from "../../bookmark/context/BookmarkContext";
-import { useAuth } from "../../auth/context/AuthContext"; // adjust to your auth path
+import StatusControl from "../../bookmark/components/StatusControl";
 import ReviewSection from "../../review/components/ReviewSection";
 
 /* ── Loading skeleton ── */
@@ -74,133 +67,15 @@ function Divider() {
   );
 }
 
-/* ── Bookmark button — auth-aware ── */
-function BookmarkButton({ isBookmarked, onToggle, user, onSignIn }) {
-  const [hovered, setHovered] = useState(false);
-
-  if (!user) {
-    /* Subtle sign-in prompt */
-    return (
-      <motion.button
-        whileTap={{ scale: 0.93 }}
-        onClick={onSignIn}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          padding: "7px 13px",
-          borderRadius: "var(--radius-full)",
-          background: "rgba(9,9,11,0.72)",
-          backdropFilter: "blur(10px)",
-          border: "1px solid var(--color-border)",
-          color: hovered ? "var(--color-gold)" : "var(--color-text-muted)",
-          fontSize: 12,
-          fontWeight: 600,
-          cursor: "pointer",
-          fontFamily: "inherit",
-          pointerEvents: "all",
-          transition: "border-color 0.2s, color 0.2s",
-          borderColor: hovered
-            ? "var(--color-gold-border)"
-            : "var(--color-border)",
-        }}
-      >
-        <LogIn style={{ width: 13, height: 13 }} />
-        Sign in to save
-      </motion.button>
-    );
-  }
-
-  return (
-    <motion.button
-      whileTap={{ scale: 0.93 }}
-      onClick={onToggle}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 6,
-        padding: "7px 13px",
-        borderRadius: "var(--radius-full)",
-        background: isBookmarked
-          ? "var(--color-gold-glow)"
-          : "rgba(9,9,11,0.72)",
-        backdropFilter: "blur(10px)",
-        border: `1px solid ${isBookmarked ? "var(--color-gold-border)" : hovered ? "var(--color-gold-border)" : "var(--color-border)"}`,
-        color: isBookmarked
-          ? "var(--color-gold)"
-          : hovered
-            ? "var(--color-gold)"
-            : "var(--color-text-secondary)",
-        fontSize: 12,
-        fontWeight: 600,
-        cursor: "pointer",
-        fontFamily: "inherit",
-        pointerEvents: "all",
-        transition: "all 0.2s",
-      }}
-    >
-      <AnimatePresence mode="wait" initial={false}>
-        {isBookmarked ? (
-          <motion.span
-            key="saved"
-            initial={{ scale: 0.5, opacity: 0, rotate: -15 }}
-            animate={{ scale: 1, opacity: 1, rotate: 0 }}
-            exit={{ scale: 0.5, opacity: 0 }}
-            transition={{ duration: 0.18, type: "spring", stiffness: 320 }}
-            style={{ display: "flex" }}
-          >
-            <BookmarkCheck
-              style={{ width: 13, height: 13, strokeWidth: 2.5 }}
-            />
-          </motion.span>
-        ) : (
-          <motion.span
-            key="unsaved"
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.5, opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            style={{ display: "flex" }}
-          >
-            <Bookmark style={{ width: 13, height: 13, strokeWidth: 2 }} />
-          </motion.span>
-        )}
-      </AnimatePresence>
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.span
-          key={isBookmarked ? "saved-label" : "unsaved-label"}
-          initial={{ opacity: 0, x: -4 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 4 }}
-          transition={{ duration: 0.15 }}
-        >
-          {isBookmarked ? "Saved" : "Bookmark"}
-        </motion.span>
-      </AnimatePresence>
-    </motion.button>
-  );
-}
-
 /* ── Main ── */
 export default function DetailPage() {
   const { type, id } = useParams();
-  const navigate = useNavigate();
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const { bookmarks, toggle } = useBookmarks();
-  const { user } = useAuth();
-
   const isTV = type === "tv";
-  const isBookmarked = bookmarks.some(
-    (b) => b.mediaId === Number(id) && b.mediaType === type,
-  );
 
   useEffect(() => {
     if (!id || !type) return;
@@ -223,69 +98,6 @@ export default function DetailPage() {
       })
       .finally(() => setLoading(false));
   }, [id, type]);
-
-  const handleToggleBookmark = () => {
-    toggle({ id: Number(id), media_type: type });
-    toast.custom(
-      (t) => (
-        <motion.div
-          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0 }}
-          style={{
-            background: "var(--color-bg-overlay)",
-            border: "1px solid var(--color-gold-border)",
-            borderRadius: "var(--radius-lg)",
-            padding: "10px 16px",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            color: "var(--color-text-secondary)",
-            fontSize: 13,
-            fontWeight: 500,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
-          }}
-        >
-          <BookmarkCheck
-            style={{ width: 15, height: 15, color: "var(--color-gold)" }}
-          />
-          <span>
-            {isBookmarked ? (
-              "Removed from bookmarks"
-            ) : (
-              <>
-                <span style={{ color: "var(--color-gold)", fontWeight: 700 }}>
-                  Saved
-                </span>{" "}
-                to bookmarks
-              </>
-            )}
-          </span>
-        </motion.div>
-      ),
-      { duration: 2200 },
-    );
-  };
-
-  const handleSignInPrompt = useCallback(() => {
-    toast.custom(() => (
-      <div
-        style={{
-          background: "var(--color-bg-overlay)",
-          border: "1px solid var(--color-gold-border)",
-          borderRadius: "var(--radius-lg)",
-          padding: "12px 16px",
-          color: "var(--color-text-secondary)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
-          backdropFilter: "blur(12px)",
-        }}
-      >
-        🔐 Please sign in to save bookmarks
-      </div>
-    ));
-
-    navigate("/login");
-  }, [navigate]);
 
   /* ── Loading ── */
   if (loading) return <LoadingSkeleton />;
@@ -400,14 +212,6 @@ export default function DetailPage() {
 
           {/* Right side actions */}
           <div style={{ display: "flex", gap: 8, pointerEvents: "all" }}>
-            {/* Bookmark — auth-aware */}
-            <BookmarkButton
-              isBookmarked={isBookmarked}
-              user={user}
-              onToggle={handleToggleBookmark}
-              onSignIn={handleSignInPrompt}
-            />
-
             {/* Official site */}
             {homepage && (
               <motion.a
@@ -458,6 +262,11 @@ export default function DetailPage() {
         >
           <DetailMeta data={data} type={type} />
           <Divider />
+
+          {/* Track in library — status + rating + note */}
+          <div style={{ marginBottom: 28 }}>
+            <StatusControl item={{ id: Number(id), media_type: type }} />
+          </div>
 
           <DetailOverview data={data} />
           <Divider />

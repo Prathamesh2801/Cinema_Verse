@@ -1,8 +1,27 @@
 import User from "./auth.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import cloudinary, { isCloudinaryConfigured } from "../../config/cloudinary.js";
 
 const SALT_ROUNDS = 10;
+
+// Stream an in-memory buffer to Cloudinary (returns the upload result).
+function uploadBufferToCloudinary(buffer) {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: "cinemaverse/avatars",
+        resource_type: "image",
+        transformation: [
+          { width: 400, height: 400, crop: "fill", gravity: "auto" },
+        ],
+        format: "webp",
+      },
+      (error, result) => (error ? reject(error) : resolve(result)),
+    );
+    stream.end(buffer);
+  });
+}
 
 // Shape the user object we expose to the client (never the password hash).
 function toPublicUser(user) {
@@ -91,6 +110,51 @@ export async function updateProfileService(userId, data) {
     token: signToken(user),
     user: toPublicUser(user),
   };
+}
+
+export async function updateAvatarService(userId, file) {
+  if (!file) throw new Error("No image provided");
+  if (!isCloudinaryConfigured()) {
+    throw new Error("Image uploads are not configured on the server");
+  }
+
+  const user = await User.findById(userId);
+  if (!user) throw new Error("User not found");
+
+  const result = await uploadBufferToCloudinary(file.buffer);
+
+  // Remove the previous avatar from Cloudinary so we don't orphan assets.
+  const oldPublicId = user.avatarPublicId;
+
+  user.avatar = result.secure_url;
+  user.avatarPublicId = result.public_id;
+  await user.save();
+
+  if (oldPublicId) {
+    cloudinary.uploader.destroy(oldPublicId).catch(() => {
+      /* best-effort cleanup — don't fail the request if this errors */
+    });
+  }
+
+  return toPublicUser(user);
+}
+
+export async function removeAvatarService(userId) {
+  const user = await User.findById(userId);
+  if (!user) throw new Error("User not found");
+
+  const oldPublicId = user.avatarPublicId;
+
+  user.avatar = "";
+  user.avatarPublicId = "";
+  await user.save();
+
+  // Best-effort delete of the Cloudinary asset (only exists for uploaded images).
+  if (oldPublicId && isCloudinaryConfigured()) {
+    cloudinary.uploader.destroy(oldPublicId).catch(() => {});
+  }
+
+  return toPublicUser(user);
 }
 
 export async function changePasswordService(userId, data) {
